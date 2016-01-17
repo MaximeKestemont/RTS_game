@@ -103,4 +103,8 @@ public class WorldObject : MonoBehaviour {
 		GUI.EndGroup();
 	}
 
+	public Bounds GetSelectionBounds() {
+    	return selectionBounds;
+	}
+
 }
