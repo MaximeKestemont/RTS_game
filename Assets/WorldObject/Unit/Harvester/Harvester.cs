@@ -12,7 +12,7 @@ public class Harvester : Unit {
     private bool harvesting = false, emptying = false;
     private float currentLoad = 0.0f;
     private ResourceType harvestType;
-    private Resource resourceDeposit;					// res
+    private Resource resourceDeposit;				
  
     /*** Game Engine methods, all can be overridden by subclass ***/
  
@@ -57,6 +57,21 @@ public class Harvester : Unit {
                 	}
             	}
         	}
+    	}
+	}
+
+	// Draw the current amount of resources collected by the harverster
+	protected override void DrawSelectionBox (Rect selectBox) {
+    	base.DrawSelectionBox(selectBox);
+    	float percentFull = currentLoad / capacity;
+    	float maxHeight = selectBox.height - 4;
+    	float height = maxHeight * percentFull;
+    	float leftPos = selectBox.x + selectBox.width - 7;
+    	float topPos = selectBox.y + 2 + (maxHeight - height);
+    	float width = 5;
+    	Texture2D resourceBar = ResourceManager.GetResourceHealthBar(harvestType);
+    	if(resourceBar) {
+    		GUI.DrawTexture(new Rect(leftPos, topPos, width, height), resourceBar);
     	}
 	}
  

@@ -115,7 +115,7 @@ public class Unit : WorldObject {
         //Debug.Log("TargetShift : " + targetShift);
  
         //calculate number of unit vectors between unit centre and destination centre with bounds just touching
-        int shiftAmount = 0; // TODO targetShift + unitShift;
+        int shiftAmount =  targetShift + unitShift;
         //Debug.Log("Shift Amount : " + shiftAmount);
  
         //calculate direction unit needs to travel to reach destination in straight line and normalize to unit vector
@@ -138,6 +138,7 @@ public class Unit : WorldObject {
 
         destination.y = destinationTarget.transform.position.y;
         Debug.Log("Destination " + destination);
+        destinationTarget = null;
     }
 
 }

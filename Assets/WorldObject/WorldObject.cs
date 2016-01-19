@@ -16,6 +16,9 @@ public class WorldObject : MonoBehaviour {
 	protected bool currentlySelected = false;
 	protected Bounds selectionBounds;
 	protected Rect playingArea = new Rect(0.0f, 0.0f, 0.0f, 0.0f);
+	
+	protected GUIStyle healthStyle = new GUIStyle(); // hold the healthy/damaged/critical texture
+	protected float healthPercentage = 1.0f;
 
 
 	protected virtual void Awake() {
@@ -91,6 +94,8 @@ public class WorldObject : MonoBehaviour {
 
 	protected virtual void DrawSelectionBox(Rect selectBox) {
     	GUI.Box(selectBox, "");
+    	CalculateCurrentHealth();
+    	GUI.Label(new Rect(selectBox.x, selectBox.y - 7, selectBox.width * healthPercentage, 5), "", healthStyle);
 	}
 
 	// This will be called by the object when selected, so that it appears on the UI.
@@ -101,6 +106,17 @@ public class WorldObject : MonoBehaviour {
 		GUI.BeginGroup(playingArea);
 		DrawSelectionBox(selectBox);
 		GUI.EndGroup();
+	}
+
+	protected virtual void CalculateCurrentHealth() {
+    	healthPercentage = (float)hitPoints / (float)maxHitPoints;
+    	if(healthPercentage > 0.65f) {
+    		healthStyle.normal.background = ResourceManager.HealthyTexture;
+    	} else if (healthPercentage > 0.35f) { 
+    		healthStyle.normal.background = ResourceManager.DamagedTexture;
+    	} else { 
+    		healthStyle.normal.background = ResourceManager.CriticalTexture;
+    	}
 	}
 
 	public Bounds GetSelectionBounds() {

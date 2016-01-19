@@ -18,6 +18,12 @@ public class Resource : WorldObject {
         amountLeft = capacity;
         resourceType = ResourceType.Unknown;
     }
+
+    // Health display differs from standard units
+    protected override void CalculateCurrentHealth () {
+    	healthPercentage = amountLeft / capacity;
+    	healthStyle.normal.background = ResourceManager.GetResourceHealthBar(resourceType);
+	}
  
     /*** Public methods ***/
  
