@@ -56,6 +56,7 @@
      <Compile Include="Assets\Resources\GameObjectList.cs" />
      <Compile Include="Assets\WorldObject\Building\Building.cs" />
      <Compile Include="Assets\WorldObject\Building\Buildings.cs" />
+     <Compile Include="Assets\WorldObject\Building\Refinery\Refinery.cs" />
      <Compile Include="Assets\WorldObject\Building\WarFactory\WarFactory.cs" />
      <Compile Include="Assets\WorldObject\Resource\OreDeposit\Ore.cs" />
      <Compile Include="Assets\WorldObject\Resource\OreDeposit\OreDeposit.cs" />

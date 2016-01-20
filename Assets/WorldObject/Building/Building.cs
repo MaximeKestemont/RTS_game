@@ -23,7 +23,9 @@ public class Building : WorldObject {
 		float spawnX = selectionBounds.center.x + transform.forward.x * selectionBounds.extents.x + transform.forward.x * 10;
 		float spawnZ = selectionBounds.center.z + transform.forward.z + selectionBounds.extents.z + transform.forward.z * 10;
 		spawnPoint = new Vector3(spawnX, 0.0f, spawnZ);
-
+        //Debug.Log("This is object : " + this);
+        //Debug.Log("Center : " + selectionBounds.center.z);
+        //Debug.Log("Spawn Point : " + spawnPoint);
 		rallyPoint = spawnPoint;
 	}
  
@@ -83,7 +85,7 @@ public class Building : WorldObject {
         	currentBuildProgress += Time.deltaTime * ResourceManager.BuildSpeed;
         	if(currentBuildProgress > maxBuildProgress) {
             	if (player) {
-            		player.AddUnit(buildQueue.Dequeue(), spawnPoint, rallyPoint, transform.rotation);
+            		player.AddUnit(buildQueue.Dequeue(), spawnPoint, rallyPoint, transform.rotation, this);
             	}
             	currentBuildProgress = 0.0f;
         	}

@@ -60,6 +60,12 @@ public class Harvester : Unit {
     	}
 	}
 
+    // Link the harverster to the building having created it (the refinery)
+    public override void Init (Building creator) {
+        base.Init (creator);
+        resourceStore = creator;
+    }
+
 	// Draw the current amount of resources collected by the harverster
 	protected override void DrawSelectionBox (Rect selectBox) {
     	base.DrawSelectionBox(selectBox);

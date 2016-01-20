@@ -33,19 +33,41 @@ public class Unit : WorldObject {
 		base.OnGUI();
 	}
 
+    // Called when the unit is created (useful to link the unit to the building having created it, etc.)
+    public virtual void Init(Building creator) {
+        //specific initialization for a unit can be specified here
+    }   
+
 	public override void SetHoverState(GameObject hoverObject) {
     	base.SetHoverState(hoverObject);
     	//only handle input if owned by a human player and currently selected
-    	if(player && player.human && currentlySelected) {
-        	if(hoverObject.name == "Ground") player.hud.SetCursorState(CursorState.Move);
+    	if (player && player.human && currentlySelected) {
+        	bool moveHover = false;
+            if (hoverObject.name == "Ground") {
+                moveHover = true;
+            } else {
+                Resource resource = hoverObject.transform.parent.GetComponent< Resource >();
+                if (resource && resource.isEmpty()) {
+                    moveHover = true;
+                }
+            }
+            if(moveHover) player.hud.SetCursorState(CursorState.Move);
     	}
 	}
 
 	public override void MouseClick(GameObject hitObject, Vector3 hitPoint, Player controller) {
     	base.MouseClick(hitObject, hitPoint, controller);
     	//only handle input if owned by a human player and currently selected
-    	if(player && player.human && currentlySelected) {
-        	if(hitObject.name == "Ground" && hitPoint != ResourceManager.InvalidPosition) {
+    	if (player && player.human && currentlySelected) {
+            bool clickedOnEmptyResource = false;
+            if (hitObject.transform.parent) {
+                Resource resource = hitObject.transform.parent.GetComponent< Resource >();
+                if (resource && resource.isEmpty()) {
+                    clickedOnEmptyResource = true;
+                }
+            }
+            // If valid ground OR an empty resource, the unit can move to the click destination
+        	if ( (hitObject.name == "Ground" || clickedOnEmptyResource ) && hitPoint != ResourceManager.InvalidPosition) {
             	float x = hitPoint.x;
             	//makes sure that the unit stays on top of the surface it is on
             	float y = hitPoint.y + player.SelectedObject.transform.position.y;

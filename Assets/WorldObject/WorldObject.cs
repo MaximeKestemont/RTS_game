@@ -71,7 +71,15 @@ public class WorldObject : MonoBehaviour {
     	if(currentlySelected && hitObject && hitObject.name != "Ground") {
         	WorldObject worldObject = hitObject.transform.parent.GetComponent< WorldObject >();
         	//clicked on another selectable object
-        	if(worldObject) ChangeSelection(worldObject, controller);
+        	if (worldObject) {
+        		Resource resource = hitObject.transform.parent.GetComponent< Resource >();
+            	// If the resource deposit is empty, do nothing
+            	if(resource && resource.isEmpty()) {
+            		return;
+            	} else {
+					ChangeSelection(worldObject, controller);
+            	}
+        	}
     	}
 	}
 
