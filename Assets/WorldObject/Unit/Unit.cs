@@ -34,7 +34,7 @@ public class Unit : WorldObject {
 	}
 
     // Called when the unit is created (useful to link the unit to the building having created it, etc.)
-    public virtual void Init(Building creator) {
+    public virtual void SetBuilding(Building creator) {
         //specific initialization for a unit can be specified here
     }   
 
@@ -78,7 +78,7 @@ public class Unit : WorldObject {
     	}
 	}
 
-	public void StartMove(Vector3 destination) {
+	public virtual void StartMove(Vector3 destination) {
     	this.destination = destination;
         destinationTarget = null;
     	targetRotation = Quaternion.LookRotation (destination - transform.position);
@@ -86,7 +86,7 @@ public class Unit : WorldObject {
     	moving = false;
 	}	
 
-    public void StartMove(Vector3 destination, GameObject destinationTarget) {
+    public virtual void StartMove(Vector3 destination, GameObject destinationTarget) {
         StartMove(destination);
         this.destinationTarget = destinationTarget;
     }

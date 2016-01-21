@@ -189,18 +189,18 @@ public class HUD : MonoBehaviour {
 
     private void DrawMouseCursor() {
         bool mouseOverHud = !MouseInBounds() && activeCursorState != CursorState.PanRight && activeCursorState != CursorState.PanUp;
-
-        // If the mouse is over the HUD, then the default cursor is visible. Else, custom cursor.
-        if(mouseOverHud){
+        if(mouseOverHud) {
             Cursor.visible = true;
         } else {
             Cursor.visible = false;
-            GUI.skin = mouseCursorSkin;
-            GUI.BeginGroup(new Rect(0,0,Screen.width,Screen.height));
-            UpdateCursorAnimation();
-            Rect cursorPosition = GetCursorDrawPosition();
-            GUI.Label(cursorPosition, activeCursor);
-            GUI.EndGroup();
+            if(!player.IsFindingBuildingLocation()) {
+                GUI.skin = mouseCursorSkin;
+                GUI.BeginGroup(new Rect(0,0,Screen.width,Screen.height));
+                UpdateCursorAnimation();
+                Rect cursorPosition = GetCursorDrawPosition();
+                GUI.Label(cursorPosition, activeCursor);
+                GUI.EndGroup();
+            }
         }
     }
 

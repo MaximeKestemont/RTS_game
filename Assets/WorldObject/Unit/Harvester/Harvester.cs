@@ -61,8 +61,8 @@ public class Harvester : Unit {
 	}
 
     // Link the harverster to the building having created it (the refinery)
-    public override void Init (Building creator) {
-        base.Init (creator);
+    public override void SetBuilding (Building creator) {
+        base.SetBuilding (creator);
         resourceStore = creator;
     }
 
