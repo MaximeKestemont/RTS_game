@@ -63,10 +63,34 @@ public class WorldObject : MonoBehaviour {
 	}
 
 	public virtual void SetHoverState(GameObject hoverObject) {
-    	//only handle input if owned by a human player and currently selected
-    	if(player && player.human && currentlySelected) {
-        	if(hoverObject.name != "Ground") player.hud.SetCursorState(CursorState.Select);
-    	}
+	    //only handle input if owned by a human player and currently selected
+	    if(player && player.human && currentlySelected) {
+	        //something other than the ground is being hovered over
+	        if(hoverObject.name != "Ground") {
+	            Player owner = hoverObject.transform.root.GetComponent< Player >();
+	            Unit unit = hoverObject.transform.parent.GetComponent< Unit >();
+	            Building building = hoverObject.transform.parent.GetComponent< Building >();
+	            
+				// the object is owned by a player
+	            if ( owner ) {
+	            	// player = current player  
+	                if ( owner.username == player.username ) {
+	                	player.hud.SetCursorState(CursorState.Select);
+	                }
+	                // other player
+	                else if(CanAttack()) {
+	                	player.hud.SetCursorState(CursorState.Attack);
+	                }
+	                else {
+	                	player.hud.SetCursorState(CursorState.Select);
+	                }
+	            } else if (unit || building && CanAttack()) {
+	            	player.hud.SetCursorState(CursorState.Attack);
+	            } else {
+	            	player.hud.SetCursorState(CursorState.Select);
+	            }
+	        }
+	    }
 	}
 
 	public virtual void MouseClick(GameObject hitObject, Vector3 hitPoint, Player controller) {
@@ -179,6 +203,11 @@ public class WorldObject : MonoBehaviour {
 	// Set the player that owns the object
 	public void SetPlayer() {
     	player = transform.root.GetComponentInChildren< Player >();
+	}
+
+	public virtual bool CanAttack() {
+    	//default behaviour needs to be overidden by children
+    	return false;
 	}
 
 }
