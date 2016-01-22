@@ -302,10 +302,13 @@ public class HUD : MonoBehaviour {
             int row = i / 2;
             Rect pos = GetButtonPos(row, column);
             Texture2D action = ResourceManager.GetBuildImage(actions[i]);
-            if(action) {
+            if (action) {
                 //create the button and handle the click of that button
-                if(GUI.Button(pos, action)) {
-                    if(player.SelectedObject) player.SelectedObject.PerformAction(actions[i]);
+                if( GUI.Button(pos, action) ) {
+                    Debug.Log("Button Click");
+                    if ( player.SelectedObject ) {
+                        player.SelectedObject.PerformAction(actions[i]);
+                    }
                 }
             }
         }

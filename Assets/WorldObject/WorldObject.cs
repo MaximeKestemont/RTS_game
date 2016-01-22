@@ -29,7 +29,7 @@ public class WorldObject : MonoBehaviour {
 	}
  
 	protected virtual void Start () {
-    	player = transform.root.GetComponentInChildren< Player >();
+    	SetPlayer();
 	}
  
 	protected virtual void Update () {
@@ -58,6 +58,7 @@ public class WorldObject : MonoBehaviour {
 	}
  
 	public virtual void PerformAction(string actionToPerform) {
+		Debug.Log("Perform action Building");
     	//it is up to children with specific actions to determine what to do with each of those actions
 	}
 
@@ -104,10 +105,17 @@ public class WorldObject : MonoBehaviour {
 	}
 
 	protected virtual void DrawSelectionBox(Rect selectBox) {
-    	GUI.Box(selectBox, "");
-    	CalculateCurrentHealth();
-    	GUI.Label(new Rect(selectBox.x, selectBox.y - 7, selectBox.width * healthPercentage, 5), "", healthStyle);
+	    GUI.Box(selectBox, "");
+	    CalculateCurrentHealth(0.35f, 0.65f);
+	    DrawHealthBar(selectBox, "");
 	}
+
+	protected void DrawHealthBar(Rect selectBox, string label) {
+	    healthStyle.padding.top = -20;	// make sure that the text is drawn above the health bar
+	    healthStyle.fontStyle = FontStyle.Bold;
+	    GUI.Label(new Rect(selectBox.x, selectBox.y - 7, selectBox.width * healthPercentage, 5), label, healthStyle);
+	}
+	 
 
 	// This will be called by the object when selected, so that it appears on the UI.
 	private void DrawSelection() {
@@ -119,15 +127,16 @@ public class WorldObject : MonoBehaviour {
 		GUI.EndGroup();
 	}
 
-	protected virtual void CalculateCurrentHealth() {
-    	healthPercentage = (float)hitPoints / (float)maxHitPoints;
-    	if(healthPercentage > 0.65f) {
-    		healthStyle.normal.background = ResourceManager.HealthyTexture;
-    	} else if (healthPercentage > 0.35f) { 
-    		healthStyle.normal.background = ResourceManager.DamagedTexture;
-    	} else { 
-    		healthStyle.normal.background = ResourceManager.CriticalTexture;
-    	}
+	// Set the heathstyle background to healthy/damaged/critical, depending on the current health of the object
+	protected virtual void CalculateCurrentHealth(float lowSplit, float highSplit) {
+	    healthPercentage = (float)hitPoints / (float)maxHitPoints;
+	    if ( healthPercentage > highSplit ) {
+	    	healthStyle.normal.background = ResourceManager.HealthyTexture;
+	    } else if ( healthPercentage > lowSplit ) {
+	    	healthStyle.normal.background = ResourceManager.DamagedTexture;
+	    } else { 
+	    	healthStyle.normal.background = ResourceManager.CriticalTexture;
+	    }
 	}
 
 	public void SetColliders(bool enabled) {
@@ -165,6 +174,11 @@ public class WorldObject : MonoBehaviour {
 
 	public Bounds GetSelectionBounds() {
     	return selectionBounds;
+	}
+
+	// Set the player that owns the object
+	public void SetPlayer() {
+    	player = transform.root.GetComponentInChildren< Player >();
 	}
 
 }

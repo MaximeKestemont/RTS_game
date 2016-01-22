@@ -115,37 +115,48 @@ public class UserInput : MonoBehaviour {
 
 
 	private void LeftMouseClick() {
-		// Inside the playable screen
-    	if(player.hud.MouseInBounds()) {
-        	GameObject hitObject = WorkManager.FindHitObject(Input.mousePosition);
-        	Vector3 hitPoint = WorkManager.FindHitPoint(Input.mousePosition);
-        	// Object hitten must be valid
-        	if(hitObject && hitPoint != ResourceManager.InvalidPosition) {
-        		// If already an object selected, then special behaviour (depending on the object already selected)
-            	if(player.SelectedObject) 
-            		player.SelectedObject.MouseClick(hitObject, hitPoint, player);           	
-            	// If not ground
-            	else if(hitObject.name!="Ground") {
-                	WorldObject worldObject = hitObject.transform.parent.GetComponent< WorldObject >();	
-                	if(worldObject) {
-                    	//we already know the player has no selected object
-                    	player.SelectedObject = worldObject;
-                    	worldObject.SetSelection(true, player.hud.GetPlayingArea());
-                	}	
-            	}
-        	}
-    	}
-	}
+		Debug.Log("LEFT CLICK !");
+	    // Inside the playable screen
+	    if ( player.hud.MouseInBounds() ) {
 
+	    	// Specific behaviour when player is finding a location for his new building
+	        if ( player.IsFindingBuildingLocation() ) {
+	            if ( player.CanPlaceBuilding() ) {
+	            	player.StartConstruction();
+	            }
+	        } else {
+	        	GameObject hitObject = WorkManager.FindHitObject(Input.mousePosition);
+	        	Vector3 hitPoint = WorkManager.FindHitPoint(Input.mousePosition);
+	        	// Object hitten must be valid
+	        	if(hitObject && hitPoint != ResourceManager.InvalidPosition) {
+	        		// If already an object selected, then special behaviour (depending on the object already selected)
+	            	if(player.SelectedObject) 
+	            		player.SelectedObject.MouseClick(hitObject, hitPoint, player);           	
+	            	// If not ground
+	            	else if(hitObject.name!="Ground") {
+	                	WorldObject worldObject = hitObject.transform.parent.GetComponent< WorldObject >();	
+	                	if(worldObject) {
+	                    	//we already know the player has no selected object
+	                    	player.SelectedObject = worldObject;
+	                    	worldObject.SetSelection(true, player.hud.GetPlayingArea());
+	                	}	
+	            	}
+	        	}	
+	        }
+	    }
+	}
 
 
 	private void RightMouseClick() {
-    	if(player.hud.MouseInBounds() && !Input.GetKey(KeyCode.LeftAlt) && player.SelectedObject) {
-       		player.SelectedObject.SetSelection(false, player.hud.GetPlayingArea());
-      	  	player.SelectedObject = null;
-    	}
+	    if (player.hud.MouseInBounds() && !Input.GetKey(KeyCode.LeftAlt) && player.SelectedObject) {
+	        if (player.IsFindingBuildingLocation()) {
+	            player.CancelBuildingPlacement();
+	        } else {
+	            player.SelectedObject.SetSelection(false, player.hud.GetPlayingArea());
+	            player.SelectedObject = null;
+	        }
+	    }
 	}
-
 
 
 	private void MouseHover() {

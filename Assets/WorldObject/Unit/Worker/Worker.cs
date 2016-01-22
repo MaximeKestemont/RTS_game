@@ -17,6 +17,21 @@ public class Worker : Unit {
  
     protected override void Update () {
         base.Update();
+
+        // If not moving or rotating, check if there is a building to construct, and progress in the construction
+        if (!moving && !rotating) {
+            if(building && currentProject && currentProject.UnderConstruction()) {
+                amountBuilt += buildSpeed * Time.deltaTime;
+                int amount = Mathf.FloorToInt(amountBuilt);
+                if (amount > 0) {
+                    amountBuilt -= amount;
+                    currentProject.Construct(amount);
+                    if (!currentProject.UnderConstruction()) { 
+                        building = false;
+                    }
+                }
+            }
+        }
     }
  
     /*** Public Methods ***/
@@ -32,13 +47,34 @@ public class Worker : Unit {
         base.PerformAction (actionToPerform);
         CreateBuilding(actionToPerform);
     }
-
-
  
     public override void StartMove(Vector3 destination) {
         base.StartMove(destination);
         amountBuilt = 0.0f;
+        building = false;
     }
+
+    // Override so that when clicking on a building under construction, the worker goes to build it. Else, standard behaviour.
+    public override void MouseClick (GameObject hitObject, Vector3 hitPoint, Player controller) {
+        bool doBase = true;
+        //only handle input if owned by a human player and currently selected
+        if(player && player.human && currentlySelected && hitObject && hitObject.name!="Ground") {
+            Building building = hitObject.transform.parent.GetComponent< Building >();
+            if(building) {
+                if(building.UnderConstruction()) {
+                    SetBuilding(building);
+                    doBase = false;
+                }
+            }
+        }
+        if (doBase) {
+            base.MouseClick(hitObject, hitPoint, controller);
+        }
+    }
+
+
+
+    /*** Private Methods ***/
  
 	private void CreateBuilding(string buildingName) {
     	Vector3 buildPoint = new Vector3(transform.position.x, transform.position.y, transform.position.z + 10);

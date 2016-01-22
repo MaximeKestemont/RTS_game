@@ -13,6 +13,7 @@ public class Building : WorldObject {
 
 	private float currentBuildProgress = 0.0f;
 	private Vector3 spawnPoint;
+    private bool needsBuilding = false;
 
 
 
@@ -20,13 +21,7 @@ public class Building : WorldObject {
     	base.Awake();
 
     	buildQueue = new Queue< string >();
-		float spawnX = selectionBounds.center.x + transform.forward.x * selectionBounds.extents.x + transform.forward.x * 10;
-		float spawnZ = selectionBounds.center.z + transform.forward.z + selectionBounds.extents.z + transform.forward.z * 10;
-		spawnPoint = new Vector3(spawnX, 0.0f, spawnZ);
-        //Debug.Log("This is object : " + this);
-        //Debug.Log("Center : " + selectionBounds.center.z);
-        //Debug.Log("Spawn Point : " + spawnPoint);
-		rallyPoint = spawnPoint;
+        SetSpawnPoint();
 	}
  
 	protected override void Start () {
@@ -71,6 +66,11 @@ public class Building : WorldObject {
  
 	protected override void OnGUI() {
  		base.OnGUI();
+
+        // check if the building is currently being built
+        if (needsBuilding) {
+            DrawBuildProgress();
+        }
 	}
 
 
@@ -139,5 +139,44 @@ public class Building : WorldObject {
     	
     	Destroy(this.gameObject);
 	}
+
+    // Start the construction
+    public void StartConstruction() {
+        CalculateBounds();  // make sure that the bounds are correct once construction has started
+        needsBuilding = true;
+        hitPoints = 0;      // hitpoints allow to track the progress
+    }
+
+    private void DrawBuildProgress() {
+        GUI.skin = ResourceManager.SelectBoxSkin;
+        Rect selectBox = WorkManager.CalculateSelectionBox(selectionBounds, playingArea);
+        //Draw the selection box around the currently selected object, within the bounds of the main draw area
+        GUI.BeginGroup(playingArea);
+        CalculateCurrentHealth(0.5f, 0.99f);
+        DrawHealthBar(selectBox, "Building ...");
+        GUI.EndGroup();
+    }
+
+    public bool UnderConstruction() {
+        return needsBuilding;
+    }
+ 
+    // Construct the building. If finished, then restore the initial materials.    
+    public void Construct(int amount) {
+        hitPoints += amount;
+        if(hitPoints >= maxHitPoints) {
+            hitPoints = maxHitPoints;
+            needsBuilding = false;
+            RestoreMaterials();
+            SetSpawnPoint();
+        }
+    }
+
+    private void SetSpawnPoint() {
+        float spawnX = selectionBounds.center.x + transform.forward.x * selectionBounds.extents.x + transform.forward.x * 10;
+        float spawnZ = selectionBounds.center.z + transform.forward.z + selectionBounds.extents.z + transform.forward.z * 10;
+        spawnPoint = new Vector3(spawnX, 0.0f, spawnZ);
+        rallyPoint = spawnPoint;
+    }
 
 }

@@ -38,6 +38,16 @@ public class Player : MonoBehaviour {
 	void Update () {
 		if ( human ) {
     		hud.SetResourceValues(resources, resourceLimits);
+
+    		// If the player is in the process of placing a building, check the validity of the placement
+    		if (findingPlacement) {
+    			tempBuilding.CalculateBounds();
+    			if ( CanPlaceBuilding() ) {
+    				tempBuilding.SetTransparentMaterial(allowedMaterial, false);
+    			} else {
+    				tempBuilding.SetTransparentMaterial(notAllowedMaterial, false);
+    			}
+			}
 		}
 	}
 
@@ -81,6 +91,12 @@ public class Player : MonoBehaviour {
 	}
 
 	public void CreateBuilding(string buildingName, Vector3 buildPoint, Unit creator, Rect playingArea) {
+		
+		// Destroy the ghost remnant (if the player does not rightclick, but directly click on a new Building, then, a ghost would remain without that fix)
+		if (tempBuilding) {
+			Destroy(tempBuilding.gameObject);
+		}
+
     	GameObject newBuilding = (GameObject)Instantiate(ResourceManager.GetBuilding(buildingName), buildPoint, new Quaternion());
     	tempBuilding = newBuilding.GetComponent< Building >();
     	// Create a ghost building to show the player where the placement will be
@@ -103,5 +119,71 @@ public class Player : MonoBehaviour {
     	Vector3 newLocation = WorkManager.FindHitPoint(Input.mousePosition);
     	newLocation.y = 0;
     	tempBuilding.transform.position = newLocation;
+	}
+
+	// Check if the building can be placed at the mouse location of the player
+	public bool CanPlaceBuilding() {
+    	bool canPlace = true;
+ 
+    	Bounds placeBounds = tempBuilding.GetSelectionBounds();
+    	// shorthand for the coordinates of the center of the selection bounds
+    	float cx = placeBounds.center.x;
+    	float cy = placeBounds.center.y;
+    	float cz = placeBounds.center.z;
+    	// shorthand for the coordinates of the extents of the selection box
+    	float ex = placeBounds.extents.x;
+    	float ey = placeBounds.extents.y;
+    	float ez = placeBounds.extents.z;
+ 
+	    // Determine the screen coordinates for the corners of the selection bounds
+	    List< Vector3 > corners = new List< Vector3 >();
+		corners.Add(Camera.main.WorldToScreenPoint(new Vector3(cx+ex,cy+ey,cz+ez)));
+		corners.Add(Camera.main.WorldToScreenPoint(new Vector3(cx+ex,cy+ey,cz-ez)));
+		corners.Add(Camera.main.WorldToScreenPoint(new Vector3(cx+ex,cy-ey,cz+ez)));
+		corners.Add(Camera.main.WorldToScreenPoint(new Vector3(cx-ex,cy+ey,cz+ez)));
+		corners.Add(Camera.main.WorldToScreenPoint(new Vector3(cx+ex,cy-ey,cz-ez)));
+		corners.Add(Camera.main.WorldToScreenPoint(new Vector3(cx-ex,cy-ey,cz+ez)));
+		corners.Add(Camera.main.WorldToScreenPoint(new Vector3(cx-ex,cy+ey,cz-ez)));
+		corners.Add(Camera.main.WorldToScreenPoint(new Vector3(cx-ex,cy-ey,cz-ez)));
+	 
+	 	// For each corner, find the first object hit (from the corner, not the mouse !). If not ground, and an existing world object -> invalid position
+	    foreach ( Vector3 corner in corners ) {
+	        GameObject hitObject = WorkManager.FindHitObject(corner);
+	        if ( hitObject && hitObject.name != "Ground" ) {
+	            WorldObject worldObject = hitObject.transform.parent.GetComponent< WorldObject >();
+	            if (worldObject && placeBounds.Intersects(worldObject.GetSelectionBounds())) {
+	            	canPlace = false;
+	            }
+	        }
+	    }
+	    return canPlace;
+	}
+
+	public void StartConstruction() {
+	    // Stop the placement mode
+	    findingPlacement = false;
+	    
+	    // Place the building
+	    Buildings buildings = GetComponentInChildren< Buildings >();
+	    if (buildings) {
+	    	tempBuilding.transform.parent = buildings.transform;
+	    }
+
+	    // Initialize the building and start the construction
+	    tempBuilding.SetPlayer();
+	    tempBuilding.SetColliders(true);
+	    tempCreator.SetBuilding(tempBuilding);
+	    tempBuilding.StartConstruction();
+	    
+	    // Reset it to null so that the building is not deleted by the CreateBuilding method
+	    tempBuilding = null;
+	}
+
+	// Cancel the building placement. Triggered by right-clicking.
+	public void CancelBuildingPlacement() {
+	    findingPlacement = false;
+	    Destroy(tempBuilding.gameObject);
+	    tempBuilding = null;
+	    tempCreator = null;
 	}
 }

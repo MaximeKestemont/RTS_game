@@ -19,8 +19,8 @@ public class Resource : WorldObject {
         resourceType = ResourceType.Unknown;
     }
 
-    // Health display differs from standard units
-    protected override void CalculateCurrentHealth () {
+    // Health display differs from standard units - the color stays the same, but the bar still needs to decrease (done by HealthPercentage)
+    protected override void CalculateCurrentHealth (float lowSplit, float highSplit) {
     	healthPercentage = amountLeft / capacity;
     	healthStyle.normal.background = ResourceManager.GetResourceHealthBar(resourceType);
 	}
