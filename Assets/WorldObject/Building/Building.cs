@@ -169,6 +169,7 @@ public class Building : WorldObject {
             needsBuilding = false;
             RestoreMaterials();
             SetSpawnPoint();
+            SetTeamColor();
         }
     }
 

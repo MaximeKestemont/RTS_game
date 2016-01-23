@@ -8,6 +8,7 @@ public class Player : MonoBehaviour {
 	public HUD hud;
 	public string username;
 	public bool human;
+	public Color teamColor;
 
 	public int startMoney, startMoneyLimit, startPower, startPowerLimit;
 	private Dictionary< ResourceType, int > resources, resourceLimits;

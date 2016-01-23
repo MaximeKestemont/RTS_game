@@ -109,8 +109,10 @@ public class Unit : WorldObject {
 	private void MakeMove() {
     	transform.position = Vector3.MoveTowards(transform.position, destination, Time.deltaTime * moveSpeed);
         //Debug.Log("Make Move : " + transform.position);
-    	if(transform.position == destination) 
+    	if(transform.position == destination) { 
     		moving = false;
+            movingIntoPosition = false;
+        }
     	CalculateBounds();
 	}
 

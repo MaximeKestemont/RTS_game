@@ -10,6 +10,10 @@ public class WorldObject : MonoBehaviour {
 	public Texture2D buildImage;
 	public int cost, sellValue;
 	public int hitPoints, maxHitPoints;
+	public float weaponRange = 10.0f;	// default range
+	public float weaponRechargeTime = 1.0f;	// attack speed
+	public float weaponAimSpeed = 1.0f;		// speed to aim
+	private float currentWeaponChargeTime; // current progress of reloading
 
 	protected Player player;
 	protected string[] actions = {};
@@ -20,6 +24,13 @@ public class WorldObject : MonoBehaviour {
 	protected GUIStyle healthStyle = new GUIStyle(); // hold the healthy/damaged/critical texture
 	protected float healthPercentage = 1.0f;
 
+
+	// Combat related variables
+	protected WorldObject target = null; 			// attack target
+	protected bool attacking = false; 				// attack mode or not
+	protected bool movingIntoPosition = false;		// moving into position to be able to attack
+	protected bool aiming = false;					// aiming (once in position)
+
 	private List< Material > oldMaterials = new List< Material >(); // Store the list of materials, to restore them later on
 
 
@@ -29,11 +40,27 @@ public class WorldObject : MonoBehaviour {
 	}
  
 	protected virtual void Start () {
+
+		// Initialize the player to which the object belong - if there is one
     	SetPlayer();
+
+    	// Initialize the color of the object depending on the player owning it
+    	if ( player ) {
+    		SetTeamColor();
+    	}
+
 	}
  
+ 	// TODO maybe the attack part should be moved to a subclass of world object being able to attack, as the non attacking building here will still
+ 	// have to handle those checks...
 	protected virtual void Update () {
-	 
+		// Progress towards the reloading of weapon
+	    currentWeaponChargeTime += Time.deltaTime;
+
+	    // If in attack mode, not moving into position or aiming -> attack
+	    if (attacking && !movingIntoPosition && !aiming) {
+	    	PerformAttack();
+	    }
 	}
  
 	protected virtual void OnGUI() {
@@ -93,22 +120,60 @@ public class WorldObject : MonoBehaviour {
 	    }
 	}
 
+
 	public virtual void MouseClick(GameObject hitObject, Vector3 hitPoint, Player controller) {
-		Debug.Log("THERE IS A CLICK " + this);
-    	//only handle input if currently selected
-    	if(currentlySelected && hitObject && hitObject.name != "Ground") {
-        	WorldObject worldObject = hitObject.transform.parent.GetComponent< WorldObject >();
-        	//clicked on another selectable object
-        	if (worldObject) {
-        		Resource resource = hitObject.transform.parent.GetComponent< Resource >();
-            	// If the resource deposit is empty, do nothing
-            	if(resource && resource.isEmpty()) {
-            		return;
-            	} else {
-					ChangeSelection(worldObject, controller);
-            	}
-        	}
-    	}
+	    bool eraseAttackMode = true;
+
+	    //only handle input if currently selected
+	    if (currentlySelected && hitObject && hitObject.name != "Ground") {
+	        WorldObject worldObject = hitObject.transform.parent.GetComponent< WorldObject >();
+	        
+	        //clicked on another selectable object
+	        if (worldObject) {
+	            Resource resource = hitObject.transform.parent.GetComponent< Resource >();
+	            
+	            // If the click is on a resource deposit and resource deposit is empty, do nothing
+	            if(resource && resource.isEmpty()) {
+	            	return;
+	            } else {
+		            Player owner = hitObject.transform.root.GetComponent< Player >();
+		            //the object is controlled by a player
+		            if (owner) { 
+		            	// this object is controlled by a human player
+		                if (player && player.human) { 
+		                    //start attack if object is not owned by the same player and this object can attack, else select
+		                    if (player.username != owner.username && CanAttack()) {
+		                    	eraseAttackMode = false;
+		                    	BeginAttack(worldObject);
+		                    } else {
+		                    	ChangeSelection(worldObject, controller);
+		                    }
+		                } else {
+		                	ChangeSelection(worldObject, controller);
+		                }
+		            } else {
+		            	ChangeSelection(worldObject, controller);
+		            }
+		        }
+	    	}
+	    }
+
+	    if (eraseAttackMode) {
+	    	attacking = false;
+	    	movingIntoPosition = false;
+	    	aiming = false;
+	    }
+	}
+
+	// Method that initiate an attack (i.e. launch the attach if is range, adjust position if not)
+	protected virtual void BeginAttack(WorldObject target) {
+	    this.target = target;
+	    if ( TargetInRange() ) {
+	        attacking = true;
+	        PerformAttack();
+	    } else {
+	    	AdjustPosition();
+	    }
 	}
 
 	// Calculate the bounds of the object
@@ -138,6 +203,15 @@ public class WorldObject : MonoBehaviour {
 	    healthStyle.padding.top = -20;	// make sure that the text is drawn above the health bar
 	    healthStyle.fontStyle = FontStyle.Bold;
 	    GUI.Label(new Rect(selectBox.x, selectBox.y - 7, selectBox.width * healthPercentage, 5), label, healthStyle);
+	}
+
+	// This method finds all the child objects of this object with the script TeamColor.cs attached, and changed their color to 
+	// the team color of the player.
+	protected void SetTeamColor() {
+    	TeamColor[] teamColors = GetComponentsInChildren< TeamColor >();
+    	foreach(TeamColor teamColor in teamColors) {
+    		teamColor.GetComponent<Renderer>().material.color = player.teamColor;
+    	}
 	}
 	 
 
@@ -205,9 +279,108 @@ public class WorldObject : MonoBehaviour {
     	player = transform.root.GetComponentInChildren< Player >();
 	}
 
+
+	// *** Attack methods *** 
+
 	public virtual bool CanAttack() {
     	//default behaviour needs to be overidden by children
     	return false;
 	}
+
+	private bool TargetInRange() {
+	    Vector3 targetLocation = target.transform.position;
+	    Vector3 direction = targetLocation - transform.position;
+	    // distance = root of square of direction -> distance^2 so that we dont do the root computation (faster this way)
+	    if (direction.sqrMagnitude < weaponRange * weaponRange) {
+	        return true;
+	    }
+	    return false;
+	}
+
+	private void AdjustPosition() {
+	    Unit self = this as Unit;
+	    
+	    // if unit, adjust. If not an unit, cant attack (currently).
+	    if (self) {
+	        movingIntoPosition = true;
+	        Vector3 attackPosition = FindNearestAttackPosition();
+	        self.StartMove(attackPosition);
+	        attacking = true;
+	    } else {
+	    	attacking = false;
+	    }
+	}
+
+	private Vector3 FindNearestAttackPosition() {
+	    Vector3 targetLocation = target.transform.position;
+	    Vector3 direction = targetLocation - transform.position;
+	    float targetDistance = direction.magnitude;
+
+	    // Note : taking 90% of the range, so that if the target directly move, the unit should not directly re-move.
+	    float distanceToTravel = targetDistance - (0.9f * weaponRange);	
+
+	    // Linear interpolation to find the position that is at the correct distance, along the direction vector.
+	    return Vector3.Lerp(transform.position, targetLocation, distanceToTravel / targetDistance);
+	}
+
+	private void PerformAttack() {
+		// Make sure that the target is not already destroyed
+	    if (!target) {
+	        attacking = false;
+	        return;
+	    }
+	    // Check if still in range (as it could have managed to run away)
+	    if (!TargetInRange()) {
+	    	AdjustPosition();
+	    // Check if the weapon is in front
+	    } else if (!TargetInFrontOfWeapon()) {
+	    	AimAtTarget();
+	    // Check that it can fire (or is reloading)
+	    } else if (ReadyToFire()) {
+	    	UseWeapon();
+	    }
+	}
+
+	// Check that the object is in the right direction to attack. If an unit can fire from backward, this need to be overriden !
+	protected virtual bool TargetInFrontOfWeapon() {
+	    Vector3 targetLocation = target.transform.position;
+	    Vector3 direction = targetLocation - transform.position;
+	    if (direction.normalized == transform.forward.normalized) {
+	    	return true; 
+	    } else {
+	    	return false;
+	    }
+	}
+
+	// Differ for each kind of unit (animation, time to set up, etc.)
+	protected virtual void AimAtTarget() {
+    	aiming = true;
+    	//this behaviour needs to be specified by a specific object
+	}
+
+	// Method handling the attack speed of the weapong
+	private bool ReadyToFire() {
+	    if (currentWeaponChargeTime >= weaponRechargeTime) {
+	    	return true;
+	    } else {	
+	    	return false;
+		}
+	}
+
+	// Method handling the firing part of the attack
+	protected virtual void UseWeapon() {
+		// Reset the loading time of the weapon, for the next attack
+	    currentWeaponChargeTime = 0.0f;
+	    //this behaviour needs to be specified by a specific object
+	}
+
+	public void TakeDamage(int damage) {
+	    hitPoints -= damage;
+	    if ( hitPoints <= 0 ) {
+	    	// TODO animation for the object being destroyed
+	    	Destroy(gameObject);
+	    }
+	}
+
 
 }
