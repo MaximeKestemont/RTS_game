@@ -17,6 +17,9 @@ public class UserInput : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		if (player.human) {
+			if (Input.GetKeyDown(KeyCode.Escape)) {
+				OpenPauseMenu();
+			}	
 			MoveCamera();
 			RotateCamera();
 			MouseActivity();
@@ -185,6 +188,17 @@ public class UserInput : MonoBehaviour {
     			}
 			}
     	}
+	}
+
+
+	// *** Menu Methods ***
+	private void OpenPauseMenu() {
+	    Time.timeScale = 0.0f;
+	    GetComponentInChildren< PauseMenu >().enabled = true;
+	    // disable the user input as the player need to interact with the menu, not the game
+	    GetComponent< UserInput >().enabled = false;			
+	    Cursor.visible = true;
+	    ResourceManager.MenuOpen = true;
 	}
 
 }
