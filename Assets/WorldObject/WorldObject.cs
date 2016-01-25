@@ -67,6 +67,12 @@ public class WorldObject : MonoBehaviour {
 		if (currentlySelected) DrawSelection();
 	}
 
+	
+    protected virtual void AnimationUpdate() {
+        // to specifiy in children
+    }
+
+
 	public virtual void SetSelection(bool selected, Rect playingArea) {
     	currentlySelected = selected;
     	if(selected) this.playingArea = playingArea;

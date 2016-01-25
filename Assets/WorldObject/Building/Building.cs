@@ -34,7 +34,6 @@ public class Building : WorldObject {
   	  	ProcessBuildQueue();
 	}
 
-
 	public override void SetSelection(bool selected, Rect playingArea) {
     	base.SetSelection(selected, playingArea);
     	if ( player ) {

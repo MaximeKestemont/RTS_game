@@ -12,11 +12,14 @@ public class Worker : Unit {
  
     protected override void Start () {
         base.Start();
-        actions = new string[] {"Refinery", "WarFactory", "HealingStatue", "WaterWell"};
+        actions = new string[] {"Refinery", "WarFactory", "HealingStatue", "WaterWell", "Tavern", "Turret", "Core"};
     }
  
     protected override void Update () {
         base.Update();
+
+        // TODO probably to consuming to call it here...
+        AnimationUpdate();
 
         // If not moving or rotating, check if there is a building to construct, and progress in the construction
         if (!moving && !rotating) {
@@ -30,6 +33,24 @@ public class Worker : Unit {
                         building = false;
                     }
                 }
+            }
+        }
+    }
+
+    // TODO move this to Unit class and make it generic ?
+    // TODO is it not too consuming to call this in the Update method?
+    protected override void AnimationUpdate() {
+        base.AnimationUpdate();
+        Animation anim = this.GetComponentInChildren<Animation>();
+
+        if ( moving ) {
+            // If moving and the waking animation is not played, play it
+            if ( anim && !anim.IsPlaying("Walk")) {
+                anim.Play("Walk");
+            }
+        } else {
+            if ( anim && !anim.IsPlaying("Idle")) {
+                anim.Play("Idle");
             }
         }
     }

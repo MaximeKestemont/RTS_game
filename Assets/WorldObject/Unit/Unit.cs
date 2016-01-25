@@ -33,6 +33,7 @@ public class Unit : WorldObject {
 		base.OnGUI();
 	}
 
+
     // Called when the unit is created (useful to link the unit to the building having created it, etc.)
     public virtual void SetBuilding(Building creator) {
         //specific initialization for a unit can be specified here
@@ -57,7 +58,8 @@ public class Unit : WorldObject {
 
 	public override void MouseClick(GameObject hitObject, Vector3 hitPoint, Player controller) {
     	base.MouseClick(hitObject, hitPoint, controller);
-    	//only handle input if owned by a human player and currently selected
+    	
+        //only handle input if owned by a human player and currently selected
     	if (player && player.human && currentlySelected) {
             bool clickedOnEmptyResource = false;
             if (hitObject.transform.parent) {
