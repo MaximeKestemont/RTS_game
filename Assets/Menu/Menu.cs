@@ -18,10 +18,12 @@ public class Menu : MonoBehaviour {
         DrawMenu();
     }
  
+// TODO draw a general box for the image, another for the menu
+
  	// default implementation for a menu consisting of a vertical list of buttons
     protected virtual void DrawMenu() {
-        // Setting of the skin
-        GUI.skin = mySkin;
+        // Reset the skin
+        GUI.skin = null;
         float menuHeight = GetMenuHeight();
  
 		 // Part of the screen on which it will draw the menu
