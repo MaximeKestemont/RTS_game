@@ -12,6 +12,8 @@ public class Unit : WorldObject {
 	private Quaternion targetRotation;
     private GameObject destinationTarget;
 
+    private float precision = 0.1f; // precision for the movement
+
 	/*** Game Engine methods, all can be overridden by subclass ***/
 	protected override void Awake() {
 		base.Awake();
@@ -23,6 +25,13 @@ public class Unit : WorldObject {
 
 	protected override void Update () {
     	base.Update();
+
+        // Update the position to correspond to the terrain height. 
+        // TODO maybe a bit hacky to put it there?
+        Vector3 newpos = transform.position; 
+        newpos.y = Terrain.activeTerrain.SampleHeight(transform.position);
+        transform.position = newpos;
+
     	if(rotating) 
     		TurnToTarget();
     	else if(moving) 
@@ -72,6 +81,7 @@ public class Unit : WorldObject {
         	if ( (hitObject.name == "Ground" || clickedOnEmptyResource ) && hitPoint != ResourceManager.InvalidPosition) {
             	float x = hitPoint.x;
             	//makes sure that the unit stays on top of the surface it is on
+                Debug.Log("Height of Ground : " + hitPoint.y);
             	float y = hitPoint.y + player.SelectedObject.transform.position.y;
             	float z = hitPoint.z;
             	Vector3 destination = new Vector3(x, y, z);
@@ -110,8 +120,18 @@ public class Unit : WorldObject {
 
 	private void MakeMove() {
     	transform.position = Vector3.MoveTowards(transform.position, destination, Time.deltaTime * moveSpeed);
-        //Debug.Log("Make Move : " + transform.position);
-    	if(transform.position == destination) { 
+        /*
+        Debug.Log("Moving : " + moving);
+        Debug.Log("Destination : " + destination);
+        Debug.Log("Position : " + transform.position);
+        Debug.Log("X : " + (transform.position.x == destination.x));
+        Debug.Log("Y : " + (transform.position.z == destination.z)); */
+
+        // TODO hack so that even if y differs, it still stop the moving mode. The problem is that the quaternion resulting from the rotate method is not 
+        // considering y, but that if it is, then it would "fly" towards the target. Need to recalculate it regularly.
+    	if ( ( transform.position.x <= (destination.x + precision) && transform.position.x >= (destination.x - precision) ) 
+            && ( transform.position.z <= destination.z + precision) && transform.position.z >= (destination.z - precision)  ) { 
+            Debug.Log("I AM HERE !!!");
     		moving = false;
             movingIntoPosition = false;
         }

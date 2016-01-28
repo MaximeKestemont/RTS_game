@@ -118,11 +118,12 @@ public class Player : MonoBehaviour {
  
 	public void FindBuildingLocation() {
     	Vector3 newLocation = WorkManager.FindHitPoint(Input.mousePosition);
-    	newLocation.y = 0;
+    	//newLocation.y = 0;
     	tempBuilding.transform.position = newLocation;
 	}
 
 	// Check if the building can be placed at the mouse location of the player
+	// TODO move in another class (Building) ? 
 	public bool CanPlaceBuilding() {
     	bool canPlace = true;
  
@@ -155,6 +156,8 @@ public class Player : MonoBehaviour {
 	            if (worldObject && placeBounds.Intersects(worldObject.GetSelectionBounds())) {
 	            	canPlace = false;
 	            }
+	        } else {
+	        	// TODO compute the derivate of the vector joining the corners, and make sure that this is not too sharp to build.
 	        }
 	    }
 	    return canPlace;
