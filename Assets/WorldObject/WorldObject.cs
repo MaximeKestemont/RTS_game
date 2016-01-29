@@ -99,7 +99,7 @@ public class WorldObject : MonoBehaviour {
 	    //only handle input if owned by a human player and currently selected
 	    if(player && player.human && currentlySelected) {
 	        //something other than the ground is being hovered over
-	        Debug.Log("Object name : " + hoverObject.name);
+	        //Debug.Log("Object name : " + hoverObject.name);
 	        if(hoverObject.name != "Ground" && hoverObject.name != "Bridge" ) {
 	            Player owner = hoverObject.transform.root.GetComponent< Player >();
 	            Unit unit = hoverObject.transform.parent.GetComponent< Unit >();

@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using RTS;
+using Pathfinding;
 
 public class Unit : WorldObject {
 
@@ -19,9 +20,37 @@ public class Unit : WorldObject {
 		base.Awake();
 	}
 
+
+    public Vector3 targetPosition; // TO REMOVE
+    private Seeker seeker;
+    //The calculated path
+    public Path path;
+    //The max distance from the AI to a waypoint for it to continue to the next waypoint
+    public float nextWaypointDistance = 3;
+    //The waypoint we are currently moving towards
+    private int currentWaypoint = 0;
 	protected override void Start() {
 		base.Start();
+
+        //Get a reference to the Seeker component we added earlier
+        seeker = GetComponent<Seeker>();
+        //Start a new path to the targetPosition, return the result to the OnPathComplete function
+        seeker.StartPath (transform.position,targetPosition, OnPathComplete);
 	}
+
+    public void OnPathComplete (Path p) {
+        Debug.Log ("Yay, we got a path back. Did it have an error? " + p.error);
+        if (!p.error) {
+            path = p;
+            //Reset the waypoint counter
+            currentWaypoint = 0;
+        }
+    }
+
+    public void OnDisable () {
+        seeker.pathCallback -= OnPathComplete;
+    } 
+
 
 	protected override void Update () {
     	base.Update();
@@ -34,9 +63,9 @@ public class Unit : WorldObject {
         }
         transform.position = newpos;
 
-    	if(rotating) 
+    	if (rotating) 
     		TurnToTarget();
-    	else if(moving) 
+    	else if (moving) 
     		MakeMove();
 	}
 
@@ -98,6 +127,8 @@ public class Unit : WorldObject {
     	targetRotation = Quaternion.LookRotation (destination - transform.position);
     	rotating = true;
     	moving = false;
+        //Start a new path to the targetPosition, return the result to the OnPathComplete function
+        seeker.StartPath (transform.position,this.destination, OnPathComplete);
 	}	
 
     public virtual void StartMove(Vector3 destination, GameObject destinationTarget) {
@@ -109,19 +140,60 @@ public class Unit : WorldObject {
     	transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, rotateSpeed);
     	//sometimes it gets stuck exactly 180 degrees out in the calculation and does nothing, this check fixes that
     	Quaternion inverseTargetRotation = new Quaternion(-targetRotation.x, -targetRotation.y, -targetRotation.z, -targetRotation.w);
-    	if(transform.rotation == targetRotation || transform.rotation == inverseTargetRotation) {
+    	if (transform.rotation == targetRotation || transform.rotation == inverseTargetRotation) {
         	rotating = false;
         	moving = true;
     	}
     	CalculateBounds();
 
+        // TODO refactor that without using this global destinationTarget where the behaviour differs if null or not...
         if ( destinationTarget ) {
             CalculateTargetDestination();
         }
 	}
 
 	private void MakeMove() {
-    	transform.position = Vector3.MoveTowards(transform.position, destination, Time.deltaTime * moveSpeed);
+        
+        if (path == null) {
+            //We have no path to move after yet
+            return;
+        }
+        if (currentWaypoint >= path.vectorPath.Count) {
+            Debug.Log ("End Of Path Reached");
+            moving = false;
+            movingIntoPosition = false;
+            return;
+        }
+        //Direction to the next waypoint
+        //Vector3 dir = (path.vectorPath[currentWaypoint]-transform.position).normalized;
+        //dir *= moveSpeed * Time.deltaTime;
+        transform.position = Vector3.MoveTowards(transform.position, path.vectorPath[currentWaypoint], Time.deltaTime * moveSpeed);
+        //controller.SimpleMove (dir);
+        
+        //Check if we are close enough to the next waypoint
+        //If we are, proceed to follow the next waypoint
+        if (Vector3.Distance (transform.position,path.vectorPath[currentWaypoint]) < nextWaypointDistance) {
+            currentWaypoint++;
+
+            // Rotate towards the new waypoint
+            if (currentWaypoint < path.vectorPath.Count) {
+            targetRotation = Quaternion.LookRotation (path.vectorPath[currentWaypoint] - transform.position);
+
+            // Dont adjust the rotation if too small of a change
+            if (Quaternion.Angle(targetRotation,transform.rotation) > 15 ) {
+                rotating = true;
+                moving = false;
+            }
+        }
+            //TurnToTarget();
+            return;
+        }
+
+
+
+
+
+//    	transform.position = Vector3.MoveTowards(transform.position, destination, Time.deltaTime * moveSpeed);
         /*
         Debug.Log("Moving : " + moving);
         Debug.Log("Destination : " + destination);
@@ -131,12 +203,11 @@ public class Unit : WorldObject {
 
         // TODO hack so that even if y differs, it still stop the moving mode. The problem is that the quaternion resulting from the rotate method is not 
         // considering y, but that if it is, then it would "fly" towards the target. Need to recalculate it regularly.
-    	if ( ( transform.position.x <= (destination.x + precision) && transform.position.x >= (destination.x - precision) ) 
+  /*  	if ( ( transform.position.x <= (destination.x + precision) && transform.position.x >= (destination.x - precision) ) 
             && ( transform.position.z <= destination.z + precision) && transform.position.z >= (destination.z - precision)  ) { 
-            Debug.Log("I AM HERE !!!");
     		moving = false;
             movingIntoPosition = false;
-        }
+        }*/
     	CalculateBounds();
 	}
 
