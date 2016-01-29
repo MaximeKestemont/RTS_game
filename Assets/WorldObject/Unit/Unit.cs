@@ -28,8 +28,10 @@ public class Unit : WorldObject {
 
         // Update the position to correspond to the terrain height. 
         // TODO maybe a bit hacky to put it there?
-        Vector3 newpos = transform.position; 
-        newpos.y = Terrain.activeTerrain.SampleHeight(transform.position);
+        Vector3 newpos = transform.position;
+        if (Terrain.activeTerrain) { 
+            newpos.y = Terrain.activeTerrain.SampleHeight(transform.position);
+        }
         transform.position = newpos;
 
     	if(rotating) 

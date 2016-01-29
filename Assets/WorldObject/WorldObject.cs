@@ -100,7 +100,7 @@ public class WorldObject : MonoBehaviour {
 	    if(player && player.human && currentlySelected) {
 	        //something other than the ground is being hovered over
 	        Debug.Log("Object name : " + hoverObject.name);
-	        if(hoverObject.name != "Ground") {
+	        if(hoverObject.name != "Ground" && hoverObject.name != "Bridge" ) {
 	            Player owner = hoverObject.transform.root.GetComponent< Player >();
 	            Unit unit = hoverObject.transform.parent.GetComponent< Unit >();
 	            Building building = hoverObject.transform.parent.GetComponent< Building >();
@@ -132,7 +132,7 @@ public class WorldObject : MonoBehaviour {
 	    bool eraseAttackMode = true;
 
 	    //only handle input if currently selected
-	    if (currentlySelected && hitObject && hitObject.name != "Ground") {
+	    if (currentlySelected && hitObject && hitObject.name != "Ground" && hitObject.name != "Bridge") {
 	        WorldObject worldObject = hitObject.transform.parent.GetComponent< WorldObject >();
 	        
 	        //clicked on another selectable object
