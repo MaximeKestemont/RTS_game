@@ -7,35 +7,30 @@ public class Unit : WorldObject {
 
 	public float moveSpeed, rotateSpeed;
 
-	protected bool moving, rotating;
+	protected bool moving, rotating;   // TODO refactor this in a state class
  
 	private Vector3 destination;
 	private Quaternion targetRotation;
     private GameObject destinationTarget;
 
-    private float precision = 0.1f; // precision for the movement
+    private Seeker seeker;                       // seeker to ask a path to the A*
+    private Path path;                           // calculated path by the A*
+    public float nextWaypointDistance = 3;       // max distance from a waypoint to continue to the next waypoint
+    private int currentWaypoint = 0;             // the waypoint we are currently moving towards
+
+
 
 	/*** Game Engine methods, all can be overridden by subclass ***/
+
 	protected override void Awake() {
 		base.Awake();
 	}
 
-
-    public Vector3 targetPosition; // TO REMOVE
-    private Seeker seeker;
-    //The calculated path
-    public Path path;
-    //The max distance from the AI to a waypoint for it to continue to the next waypoint
-    public float nextWaypointDistance = 3;
-    //The waypoint we are currently moving towards
-    private int currentWaypoint = 0;
 	protected override void Start() {
 		base.Start();
 
         //Get a reference to the Seeker component we added earlier
         seeker = GetComponent<Seeker>();
-        //Start a new path to the targetPosition, return the result to the OnPathComplete function
-        seeker.StartPath (transform.position,targetPosition, OnPathComplete);
 	}
 
     public void OnPathComplete (Path p) {
@@ -54,14 +49,6 @@ public class Unit : WorldObject {
 
 	protected override void Update () {
     	base.Update();
-
-        // Update the position to correspond to the terrain height. 
-        // TODO maybe a bit hacky to put it there?
-        Vector3 newpos = transform.position;
-        if (Terrain.activeTerrain) { 
-            newpos.y = Terrain.activeTerrain.SampleHeight(transform.position);
-        }
-        transform.position = newpos;
 
     	if (rotating) 
     		TurnToTarget();
@@ -84,7 +71,7 @@ public class Unit : WorldObject {
     	//only handle input if owned by a human player and currently selected
     	if (player && player.human && currentlySelected) {
         	bool moveHover = false;
-            if (hoverObject.name == "Ground") {
+            if ( hoverObject.name == "Ground" || hoverObject.name == "Bridge" ) {
                 moveHover = true;
             } else {
                 Resource resource = hoverObject.transform.parent.GetComponent< Resource >();
@@ -109,7 +96,7 @@ public class Unit : WorldObject {
                 }
             }
             // If valid ground OR an empty resource, the unit can move to the click destination
-        	if ( (hitObject.name == "Ground" || clickedOnEmptyResource ) && hitPoint != ResourceManager.InvalidPosition) {
+        	if ( (hitObject.name == "Ground" || hitObject.name == "Bridge" || clickedOnEmptyResource ) && hitPoint != ResourceManager.InvalidPosition) {
             	float x = hitPoint.x;
             	//makes sure that the unit stays on top of the surface it is on
                 Debug.Log("Height of Ground : " + hitPoint.y);
@@ -179,31 +166,21 @@ public class Unit : WorldObject {
             if (currentWaypoint < path.vectorPath.Count) {
             targetRotation = Quaternion.LookRotation (path.vectorPath[currentWaypoint] - transform.position);
 
-            // Dont adjust the rotation if too small of a change
-            if (Quaternion.Angle(targetRotation,transform.rotation) > 15 ) {
-                rotating = true;
-                moving = false;
+                // Adjust the rotation if too small of a change, but do not stop the movement.
+                if (Quaternion.Angle(targetRotation,transform.rotation) > 15 ) {
+                    rotating = true;
+                    //moving = false;
+                }
             }
-        }
-            //TurnToTarget();
             return;
         }
 
 
-
-
-
-//    	transform.position = Vector3.MoveTowards(transform.position, destination, Time.deltaTime * moveSpeed);
+        //    	transform.position = Vector3.MoveTowards(transform.position, destination, Time.deltaTime * moveSpeed);
         /*
-        Debug.Log("Moving : " + moving);
-        Debug.Log("Destination : " + destination);
-        Debug.Log("Position : " + transform.position);
-        Debug.Log("X : " + (transform.position.x == destination.x));
-        Debug.Log("Y : " + (transform.position.z == destination.z)); */
-
         // TODO hack so that even if y differs, it still stop the moving mode. The problem is that the quaternion resulting from the rotate method is not 
         // considering y, but that if it is, then it would "fly" towards the target. Need to recalculate it regularly.
-  /*  	if ( ( transform.position.x <= (destination.x + precision) && transform.position.x >= (destination.x - precision) ) 
+    	if ( ( transform.position.x <= (destination.x + precision) && transform.position.x >= (destination.x - precision) ) 
             && ( transform.position.z <= destination.z + precision) && transform.position.z >= (destination.z - precision)  ) { 
     		moving = false;
             movingIntoPosition = false;
@@ -218,8 +195,7 @@ public class Unit : WorldObject {
         normalExtents.Normalize();
         float numberOfExtents = originalExtents.x / normalExtents.x;
         int unitShift = Mathf.FloorToInt(numberOfExtents);
-        //Debug.Log("UnitShift : " + unitShift);
- 
+        
         // Calculate number of unit vectors from target centre to target edge of bounds
         WorldObject worldObject = destinationTarget.GetComponent< WorldObject >();
         if ( worldObject ) {
@@ -231,32 +207,22 @@ public class Unit : WorldObject {
         normalExtents.Normalize();
         numberOfExtents = originalExtents.x / normalExtents.x;
         int targetShift = Mathf.FloorToInt(numberOfExtents);
-        //Debug.Log("TargetShift : " + targetShift);
- 
+        
         //calculate number of unit vectors between unit centre and destination centre with bounds just touching
         int shiftAmount =  targetShift + unitShift;
-        //Debug.Log("Shift Amount : " + shiftAmount);
- 
-        //calculate direction unit needs to travel to reach destination in straight line and normalize to unit vector
+        
+        // calculate direction unit needs to travel to reach destination in straight line and normalize to unit vector
         Vector3 origin = transform.position;
         Vector3 direction = new Vector3(destination.x - origin.x, 0.0f, destination.z - origin.z);
         direction.Normalize();
 
-        //Debug.Log("DIRECTION " + direction + "!!!");
-        //Debug.Log("DESTINATION " + destination + "!!!");
- 
-        //destination = center of destination - number of unit vectors calculated above
-        //this should give us a destination where the unit will not quite collide with the target
-        //giving the illusion of moving to the edge of the target and then stopping
-        
-/*
-        for ( int i = 0; i < shiftAmount; i++ ) {
-            destination -= direction;
-        }
-*/      destination -= direction*shiftAmount;
+        // destination = center of destination - number of unit vectors calculated above
+        // this should give a destination where the unit will not quite collide with the target
+        // giving the illusion of moving to the edge of the target and then stopping
+        destination -= direction*shiftAmount;
 
         destination.y = destinationTarget.transform.position.y;
-        Debug.Log("Destination " + destination);
+        //Debug.Log("Destination " + destination);
         destinationTarget = null;
     }
 

@@ -88,7 +88,7 @@ public class Harvester : Unit {
 
         //only handle input if owned by a human player and currently selected
         if(player && player.human && currentlySelected) {
-            if(hoverObject.name != "Ground") {
+            if(hoverObject.name != "Ground" && hoverObject.name != "Bridge") {
                 Resource resource = hoverObject.transform.parent.GetComponent< Resource >();
                 if (resource && !resource.isEmpty()) { 
                 	player.hud.SetCursorState(CursorState.Harvest);
@@ -101,7 +101,7 @@ public class Harvester : Unit {
         base.MouseClick(hitObject, hitPoint, controller);
         //only handle input if owned by a human player
         if(player && player.human) {
-            if(hitObject.name != "Ground") {
+            if(hitObject.name != "Ground" && hitObject.name != "Bridge") {
                 Resource resource = hitObject.transform.parent.GetComponent< Resource >();
                 if(resource && !resource.isEmpty()) {
                     //make sure that we select harvester remains selected
