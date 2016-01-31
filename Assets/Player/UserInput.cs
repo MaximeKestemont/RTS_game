@@ -115,8 +115,8 @@ public class UserInput : MonoBehaviour {
     		RightMouseClick();
     	}
 
+    	// Currently handle the left click up here, as it is only used for finishing the selection process
     	if (Input.GetMouseButtonUp(0)) {
-		    Debug.Log("Here2");
 		    selectionBox = false;
 		    boxRect = Rect.MinMaxRect(0, 0, 0, 0);
 		}
@@ -140,6 +140,19 @@ public class UserInput : MonoBehaviour {
     private Rect boxRect;
 
 
+    /*  Handle the left mouse click (down, not when the left button goes up ! )
+    * 	Left button is use to select/deselect.
+    *
+    *	Algorithm when the left button is pressed : 
+    *		- If player trying to find a location for a building
+    *			-> Construct the building	
+    *		- Else
+    *			- If a valid object has been hitten 
+    *				-> Reset the current selection, and add the hitten object to the selection (if not ground/bridge)
+    *			
+    *			Start the selection box. 
+    *
+    */
 	private void LeftMouseClick() {
 		Debug.Log("LEFT CLICK !");
 	    // Inside the playable screen
@@ -157,15 +170,14 @@ public class UserInput : MonoBehaviour {
 	        	
 	        	// Object hitten must be valid
 	        	if (hitObject && hitPoint != ResourceManager.InvalidPosition) {
-	        		// If already an object selected, then special behaviour (depending on the object already selected)
-	            	if ( player.SelectedObject ) {
-	            		player.SelectedObject.MouseClick( hitObject, hitPoint, player );           	
-	            	// If not ground
-	            	} else if ( hitObject.name!="Ground" && hitObject.name!="Bridge" ) {
+	            	player.ResetSelection(); 
+	            	
+	            	if ( hitObject.name != "Ground" && hitObject.name != "Bridge" ) {
+	                	
 	                	WorldObject worldObject = hitObject.transform.parent.GetComponent< WorldObject >();	
 	                	if (worldObject) {
 	                    	// we already know the player has no selected object
-	                    	player.SelectedObject = worldObject;
+	                    	player.selections.Add(worldObject);
 	                    	worldObject.SetSelection(true, player.hud.GetPlayingArea());
 	                	}	
 	            	} else {
@@ -174,9 +186,7 @@ public class UserInput : MonoBehaviour {
 	        	}
 
 		        //selection box
-		        if (Input.GetMouseButtonDown(0))
-		        {
-		        	Debug.Log("Here1");
+		        if ( Input.GetMouseButtonDown(0) ) {
 		            selectionBox = true;
 		            selectionStart = Input.mousePosition;
 		        }
@@ -189,7 +199,6 @@ public class UserInput : MonoBehaviour {
 
     private void UpdateBoxSelection(Vector3 from, Vector3 to)
     {
-    	Debug.Log("SelectionStart : " + selectionStart);
         RaycastHit hit1, hit2;
         Ray mouseRay1 = Camera.main.ScreenPointToRay(from);
         Ray mouseRay2 = Camera.main.ScreenPointToRay(to);
@@ -213,15 +222,36 @@ public class UserInput : MonoBehaviour {
     }
 
 
+
+    /*  Handle the right mouse click (down, not when the right button goes up ! )
+    * 	Right button is use to perform actions (move, attack, etc.).
+    *
+    *	Algorithm when the right button is pressed : 
+    *		- If player trying to find a location for a building
+    *			-> Cancel the placement.
+    *		- Else
+    *			Perform actions for each selected object.		
+    *
+    */
 	private void RightMouseClick() {
-	    if (player.hud.MouseInBounds() && !Input.GetKey(KeyCode.LeftAlt) && player.SelectedObject) {
+		Debug.Log("RIGHT CLICK");
+	    if (player.hud.MouseInBounds() && !Input.GetKey(KeyCode.LeftAlt) && player.selections.Count > 0  ) {
 	        if (player.IsFindingBuildingLocation()) {
 	            player.CancelBuildingPlacement();
 	        } else {
-	            player.SelectedObject.SetSelection(false, player.hud.GetPlayingArea());
-	            player.SelectedObject = null;
+
+	        	GameObject hitObject = WorkManager.FindHitObject(Input.mousePosition);
+	        	Vector3 hitPoint = WorkManager.FindHitPoint(Input.mousePosition);
+	        	
+	        	lock (player.selections) {
+		        	foreach (WorldObject obj in player.selections) {
+		        		Debug.Log("Action will start");
+		        		obj.MouseClick( hitObject, hitPoint, player );
+		        		Debug.Log("Action will end : " + player.selections.Count);
+	        		}
+        		}
 	        }
-	    }
+	    } 
 	}
 
 
@@ -234,9 +264,10 @@ public class UserInput : MonoBehaviour {
         			GameObject hoverObject = WorkManager.FindHitObject(Input.mousePosition);
         			//print(hoverObject);
         			if(hoverObject) {
-            			if (player.SelectedObject) 
-            				player.SelectedObject.SetHoverState(hoverObject);
-            			else if (hoverObject.name != "Ground") {
+            			if ( player.selections.Count > 0 ) 
+            				// TODO put the HoverState to the most appropriate object in the list (-> priority : Attack -> collect -> move)
+            				player.selections[0].SetHoverState(hoverObject);
+            			else if (hoverObject.name != "Ground" && hoverObject.name != "Bridge") {
                 			Player owner = hoverObject.transform.root.GetComponent< Player >();
 
                 			if (owner) {

@@ -131,17 +131,20 @@ public class HUD : MonoBehaviour {
         GUI.Box(new Rect(BUILD_IMAGE_WIDTH + SCROLL_BAR_WIDTH, 0, ORDERS_BAR_WIDTH, Screen.height - RESOURCE_BAR_HEIGHT),"");
 
 
-    	// Display the object selected
+    	// Display the object selected, if there is only one object selected
     	string selectionName = "";
-		if(player.SelectedObject) {
-    		selectionName = player.SelectedObject.objectName;
+		if (player.selections.Count == 1) {
+            WorldObject selectedObject = player.selections[0];
+    		selectionName = player.selections[0].objectName;
 
-            if(player.SelectedObject.IsOwnedBy(player)) {
+            if (selectedObject.IsOwnedBy(player) ) {
                 //reset slider value if the selected object has changed
-                if(lastSelection && lastSelection != player.SelectedObject) sliderValue = 0.0f;
-                DrawActions(player.SelectedObject.GetActions());
+                if (lastSelection && lastSelection != selectedObject) 
+                    sliderValue = 0.0f;
+                
+                DrawActions(selectedObject.GetActions());
                 //store the current selection
-                lastSelection = player.SelectedObject;
+                lastSelection = selectedObject;
 
                 Building selectedBuilding = lastSelection.GetComponent< Building >();
                 if(selectedBuilding) {
@@ -306,8 +309,8 @@ public class HUD : MonoBehaviour {
                 //create the button and handle the click of that button
                 if( GUI.Button(pos, action) ) {
                     Debug.Log("Button Click");
-                    if ( player.SelectedObject ) {
-                        player.SelectedObject.PerformAction(actions[i]);
+                    if ( player.selections.Count == 1 ) {
+                        player.selections[0].PerformAction(actions[i]);
                     }
                 }
             }

@@ -152,19 +152,13 @@ public class WorldObject : MonoBehaviour {
 		            if (owner) { 
 		            	// this object is controlled by a human player
 		                if (player && player.human) { 
-		                    //start attack if object is not owned by the same player and this object can attack, else select
+		                    //start attack if object is not owned by the same player and this object can attack
 		                    if (player.username != owner.username && CanAttack()) {
 		                    	eraseAttackMode = false;
 		                    	BeginAttack(worldObject);
-		                    } else {
-		                    	ChangeSelection(worldObject, controller);
-		                    }
-		                } else {
-		                	ChangeSelection(worldObject, controller);
-		                }
-		            } else {
-		            	ChangeSelection(worldObject, controller);
-		            }
+		                    } 
+		                } 
+		            } 
 		        }
 	    	}
 	    }
@@ -196,13 +190,15 @@ public class WorldObject : MonoBehaviour {
 	}
 
 
-	private void ChangeSelection(WorldObject worldObject, Player controller) {
+	//private void ChangeSelection(WorldObject worldObject, Player controller) {
     	//this should be called by the following line, but there is an outside chance it will not
-    	SetSelection(false, playingArea);
-    	if(controller.SelectedObject) controller.SelectedObject.SetSelection(false, playingArea);
-    	controller.SelectedObject = worldObject;
-   	 	worldObject.SetSelection(true, controller.hud.GetPlayingArea());
-	}
+    	/*SetSelection(false, playingArea);
+    	foreach (WorldObject obj in controller.selections ) 
+    		obj.SetSelection(false, playingArea);
+    	controller.ResetSelection();
+    	controller.selections.Add(worldObject);
+   	 	worldObject.SetSelection(true, controller.hud.GetPlayingArea());*/
+	//}
 
 	protected virtual void DrawSelectionBox(Rect selectBox) {
 	    GUI.Box(selectBox, "");

@@ -113,7 +113,7 @@ public class Unit : WorldObject {
             	float x = hitPoint.x;
             	//makes sure that the unit stays on top of the surface it is on
                 Debug.Log("Height of Ground : " + hitPoint.y);
-            	float y = hitPoint.y + player.SelectedObject.transform.position.y;
+            	float y = hitPoint.y + this.transform.position.y; //player.SelectedObject.transform.position.y;
             	float z = hitPoint.z;
             	Vector3 destination = new Vector3(x, y, z);
             	StartMove(destination);

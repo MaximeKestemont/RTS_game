@@ -11,12 +11,11 @@ public class Player : MonoBehaviour {
 	public Color teamColor;
 
 	private List<Unit> unitsList = new List<Unit>();
-	public List<Unit> selections;
+	public List<WorldObject> selections;
 
 	public int startMoney, startMoneyLimit, startPower, startPowerLimit;
 	private Dictionary< ResourceType, int > resources, resourceLimits;
 
-	public WorldObject SelectedObject { get; set; }
 	public Material notAllowedMaterial, allowedMaterial;		// Material for the building placement
  
  	// Variables for the building
@@ -98,8 +97,7 @@ public class Player : MonoBehaviour {
 
     public void BoxSelection(Vector3 from, Vector3 to)
     {
-        ResetSelection(); // TODO
-
+        ResetSelection();
         
         Debug.Log("UNITS : " + unitsList.Count);
         for ( int i = 0 ; i < unitsList.Count ; ++i ) {
@@ -113,47 +111,24 @@ public class Player : MonoBehaviour {
 
         }
         Debug.Log("Selection : " + selections.Count);
-
-        /*
-            for (int j = 0; j < players[i].GetTotalUnits(); j++)
-            {
-                Unit u = GetUnit(j);
-                if (((u.GetPosition().x > from.x && u.GetPosition().x < to.x) || (u.GetPosition().x < from.x && u.GetPosition().x > to.x)) &&
-                   ((u.GetPosition().z > from.z && u.GetPosition().z < to.z) || (u.GetPosition().z < from.z && u.GetPosition().z > to.z)))
-                {
-                    if (type == null || type.name == u.GetModel().name)
-                    {
-                        AddSelection(u);
-                    }
-                }
-            }
-            */
-        
     }
 
     public void AddSelection(Unit u)
     {
-        //if (!u.IsDead())
-        //{
-        u.SetSelection(true); // TODO playing area?
+        u.SetSelection(true, this.hud.GetPlayingArea()); 
         selections.Add(u);
-        //}
     }
 
     public void ResetSelection()
     {
-        foreach (Unit u in selections)
-        {
-            u.SetSelection(false);
+        foreach (WorldObject obj in selections) {
+            obj.SetSelection(false);
         }
         selections.Clear();
     }
 
 
-
-
     public void AddUnitInList(Unit unit) {
-    	Debug.Log("ADD THE UNIT : " + unit);
     	unitsList.Add(unit);
     }
 

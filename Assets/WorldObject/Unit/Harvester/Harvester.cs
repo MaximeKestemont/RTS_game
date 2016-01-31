@@ -105,11 +105,12 @@ public class Harvester : Unit {
                 Resource resource = hitObject.transform.parent.GetComponent< Resource >();
                 if(resource && !resource.isEmpty()) {
                     //make sure that we select harvester remains selected
-                    if(player.SelectedObject) { 
-                    	player.SelectedObject.SetSelection(false, playingArea);
+                    if(player.selections.Count > 0) { 
+                    	player.ResetSelection();
+                        //player.SelectedObject.SetSelection(false, playingArea);
                     }
                     SetSelection(true, playingArea);
-                    player.SelectedObject = this;
+                    player.selections.Add(this);
                     StartHarvest(resource);
                 }
             } else StopHarvest();
