@@ -24,6 +24,10 @@ public class Unit : WorldObject {
 
 	protected override void Awake() {
 		base.Awake();
+
+        Debug.Log("Player " + transform.root.GetComponent< Player >());
+        Debug.Log("Unit : " + this);
+        transform.root.GetComponent< Player >().AddUnitInList(this);
 	}
 
 	protected override void Start() {
@@ -65,6 +69,10 @@ public class Unit : WorldObject {
         seeker.pathCallback -= OnPathComplete;
     }
 
+
+    public Vector3 GetPosition() {
+        return transform.position;
+    }
 
     // Called when the unit is created (useful to link the unit to the building having created it, etc.)
     public virtual void SetBuilding(Building creator) {

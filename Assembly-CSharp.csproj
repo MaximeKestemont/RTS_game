@@ -164,6 +164,7 @@
      <Compile Include="Assets\Menu\MainMenu.cs" />
      <Compile Include="Assets\Menu\Menu.cs" />
      <Compile Include="Assets\Menu\PauseMenu.cs" />
+     <Compile Include="Assets\Player\GUIManager.cs" />
      <Compile Include="Assets\Player\HUD\HUD.cs" />
      <Compile Include="Assets\Player\Player.cs" />
      <Compile Include="Assets\Player\RallyPoint\RallyPoint.cs" />

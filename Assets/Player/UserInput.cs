@@ -7,14 +7,13 @@ using RTS;
 public class UserInput : MonoBehaviour {
 
 	private Player player;
+	private GUIManager guiManager;
 
-	// Use this for initialization
 	void Start () {
 		player = transform.root.GetComponent< Player >();
-	
+		guiManager = transform.GetComponent< GUIManager >();
 	}
 	
-	// Update is called once per frame
 	void Update () {
 		if (player.human) {
 			if (Input.GetKeyDown(KeyCode.Escape)) {
@@ -110,11 +109,35 @@ public class UserInput : MonoBehaviour {
 
 
 	private void MouseActivity() {
-    	if(Input.GetMouseButtonDown(0)) LeftMouseClick();
-    	else if(Input.GetMouseButtonDown(1)) RightMouseClick();
+    	if ( Input.GetMouseButtonDown(0) ) {
+    		LeftMouseClick();
+    	} else if ( Input.GetMouseButtonDown(1) ) { 
+    		RightMouseClick();
+    	}
+
+    	if (Input.GetMouseButtonUp(0)) {
+		    Debug.Log("Here2");
+		    selectionBox = false;
+		    boxRect = Rect.MinMaxRect(0, 0, 0, 0);
+		}
+
+
+		if (selectionBox && oldMouse != Input.mousePosition) {
+		    UpdateBoxSelection(selectionStart, Input.mousePosition);
+		}
+		oldMouse = Input.mousePosition;
+
+		//draw box
+        guiManager.setSelectionBox(selectionBox, boxRect);
 
     	MouseHover();
 	}
+
+
+    private bool selectionBox;
+    private Vector3 oldMouse;
+    private Vector3 selectionStart;
+    private Rect boxRect;
 
 
 	private void LeftMouseClick() {
@@ -128,26 +151,66 @@ public class UserInput : MonoBehaviour {
 	            	player.StartConstruction();
 	            }
 	        } else {
+
 	        	GameObject hitObject = WorkManager.FindHitObject(Input.mousePosition);
 	        	Vector3 hitPoint = WorkManager.FindHitPoint(Input.mousePosition);
+	        	
 	        	// Object hitten must be valid
-	        	if(hitObject && hitPoint != ResourceManager.InvalidPosition) {
+	        	if (hitObject && hitPoint != ResourceManager.InvalidPosition) {
 	        		// If already an object selected, then special behaviour (depending on the object already selected)
-	            	if(player.SelectedObject) 
-	            		player.SelectedObject.MouseClick(hitObject, hitPoint, player);           	
+	            	if ( player.SelectedObject ) {
+	            		player.SelectedObject.MouseClick( hitObject, hitPoint, player );           	
 	            	// If not ground
-	            	else if(hitObject.name!="Ground") {
+	            	} else if ( hitObject.name!="Ground" && hitObject.name!="Bridge" ) {
 	                	WorldObject worldObject = hitObject.transform.parent.GetComponent< WorldObject >();	
-	                	if(worldObject) {
-	                    	//we already know the player has no selected object
+	                	if (worldObject) {
+	                    	// we already know the player has no selected object
 	                    	player.SelectedObject = worldObject;
 	                    	worldObject.SetSelection(true, player.hud.GetPlayingArea());
 	                	}	
+	            	} else {
+	            		// TODO put here the selection box start?
 	            	}
-	        	}	
+	        	}
+
+		        //selection box
+		        if (Input.GetMouseButtonDown(0))
+		        {
+		        	Debug.Log("Here1");
+		            selectionBox = true;
+		            selectionStart = Input.mousePosition;
+		        }
+
 	        }
 	    }
+
 	}
+
+
+    private void UpdateBoxSelection(Vector3 from, Vector3 to)
+    {
+    	Debug.Log("SelectionStart : " + selectionStart);
+        RaycastHit hit1, hit2;
+        Ray mouseRay1 = Camera.main.ScreenPointToRay(from);
+        Ray mouseRay2 = Camera.main.ScreenPointToRay(to);
+        if (Physics.Raycast(mouseRay1, out hit1, 100) && Physics.Raycast(mouseRay2, out hit2, 100))
+        {
+            //draw box info
+            float minx = Mathf.Min(from.x, to.x);
+            float miny = Mathf.Min(from.y, to.y);
+            float maxx = Mathf.Max(from.x, to.x);
+            float maxy = Mathf.Max(from.y, to.y);
+            float w = maxx - minx;
+            float h = maxy - miny;
+            //not double click?
+            if (w != Screen.width || h != Screen.height)
+            {
+                boxRect = Rect.MinMaxRect(minx, Screen.height - maxy, maxx, Screen.height - miny);
+            }
+            //selection
+            player.BoxSelection(hit1.point, hit2.point);
+        }
+    }
 
 
 	private void RightMouseClick() {

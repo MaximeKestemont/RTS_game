@@ -78,6 +78,10 @@ public class WorldObject : MonoBehaviour {
     	if(selected) this.playingArea = playingArea;
 	}
 
+	public virtual void SetSelection(bool selected) {
+		currentlySelected = selected;
+	}
+
 	public bool IsOwnedBy(Player owner) {
     	if(player && player.Equals(owner)) {
         	return true;

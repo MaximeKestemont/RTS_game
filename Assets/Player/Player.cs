@@ -10,6 +10,9 @@ public class Player : MonoBehaviour {
 	public bool human;
 	public Color teamColor;
 
+	private List<Unit> unitsList = new List<Unit>();
+	public List<Unit> selections;
+
 	public int startMoney, startMoneyLimit, startPower, startPowerLimit;
 	private Dictionary< ResourceType, int > resources, resourceLimits;
 
@@ -89,7 +92,76 @@ public class Player : MonoBehaviour {
     		unitObject.SetBuilding(creator);
     		unitObject.StartMove(rallyPoint);
     	}
+
 	}
+    
+
+    public void BoxSelection(Vector3 from, Vector3 to)
+    {
+        ResetSelection(); // TODO
+
+        
+        Debug.Log("UNITS : " + unitsList.Count);
+        for ( int i = 0 ; i < unitsList.Count ; ++i ) {
+        	Unit u = unitsList[i];
+            
+            if (((u.GetPosition().x > from.x && u.GetPosition().x < to.x) || (u.GetPosition().x < from.x && u.GetPosition().x > to.x)) &&
+               ((u.GetPosition().z > from.z && u.GetPosition().z < to.z) || (u.GetPosition().z < from.z && u.GetPosition().z > to.z)))
+            {
+                AddSelection(u);   
+            }
+
+        }
+        Debug.Log("Selection : " + selections.Count);
+
+        /*
+            for (int j = 0; j < players[i].GetTotalUnits(); j++)
+            {
+                Unit u = GetUnit(j);
+                if (((u.GetPosition().x > from.x && u.GetPosition().x < to.x) || (u.GetPosition().x < from.x && u.GetPosition().x > to.x)) &&
+                   ((u.GetPosition().z > from.z && u.GetPosition().z < to.z) || (u.GetPosition().z < from.z && u.GetPosition().z > to.z)))
+                {
+                    if (type == null || type.name == u.GetModel().name)
+                    {
+                        AddSelection(u);
+                    }
+                }
+            }
+            */
+        
+    }
+
+    public void AddSelection(Unit u)
+    {
+        //if (!u.IsDead())
+        //{
+        u.SetSelection(true); // TODO playing area?
+        selections.Add(u);
+        //}
+    }
+
+    public void ResetSelection()
+    {
+        foreach (Unit u in selections)
+        {
+            u.SetSelection(false);
+        }
+        selections.Clear();
+    }
+
+
+
+
+    public void AddUnitInList(Unit unit) {
+    	Debug.Log("ADD THE UNIT : " + unit);
+    	unitsList.Add(unit);
+    }
+
+
+
+
+	// *** BUILDING METHODS *** //
+
 
 	public void CreateBuilding(string buildingName, Vector3 buildPoint, Unit creator, Rect playingArea) {
 		
