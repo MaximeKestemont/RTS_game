@@ -33,20 +33,6 @@ public class Unit : WorldObject {
         seeker = GetComponent<Seeker>();
 	}
 
-    public void OnPathComplete (Path p) {
-        Debug.Log ("Yay, we got a path back. Did it have an error? " + p.error);
-        if (!p.error) {
-            path = p;
-            //Reset the waypoint counter
-            currentWaypoint = 0;
-        }
-    }
-
-    public void OnDisable () {
-        seeker.pathCallback -= OnPathComplete;
-    } 
-
-
 	protected override void Update () {
     	base.Update();
 
@@ -59,6 +45,25 @@ public class Unit : WorldObject {
 	protected override void OnGUI() {
 		base.OnGUI();
 	}
+
+
+    // Call back method from the seeker, taking the path as argument.
+    public void OnPathComplete (Path p) {
+        Debug.Log ("Got a path back. Did it have an error? " + p.error);
+        if ( !p.error ) {
+            path = p;
+            
+            //Reset the waypoint counter
+            currentWaypoint = 0;
+            
+            // Initial rotation to the first waypoint
+            targetRotation = Quaternion.LookRotation (path.vectorPath[0] - transform.position);
+        }
+    }
+
+    public void OnDisable () {
+        seeker.pathCallback -= OnPathComplete;
+    }
 
 
     // Called when the unit is created (useful to link the unit to the building having created it, etc.)
@@ -111,10 +116,10 @@ public class Unit : WorldObject {
 	public virtual void StartMove(Vector3 destination) {
     	this.destination = destination;
         destinationTarget = null;
-    	targetRotation = Quaternion.LookRotation (destination - transform.position);
     	rotating = true;
     	moving = false;
-        //Start a new path to the targetPosition, return the result to the OnPathComplete function
+
+        // Start a new path to the targetPosition, return the result to the OnPathComplete function
         seeker.StartPath (transform.position,this.destination, OnPathComplete);
 	}	
 
@@ -145,17 +150,18 @@ public class Unit : WorldObject {
             //We have no path to move after yet
             return;
         }
+
+        // TODO currently, it is stopping a bit before the last point because of the "NextWayPoint Distance". Need to adjust the target, or to 
+        // have special logic for the last point.
         if (currentWaypoint >= path.vectorPath.Count) {
             Debug.Log ("End Of Path Reached");
             moving = false;
             movingIntoPosition = false;
             return;
         }
+
         //Direction to the next waypoint
-        //Vector3 dir = (path.vectorPath[currentWaypoint]-transform.position).normalized;
-        //dir *= moveSpeed * Time.deltaTime;
         transform.position = Vector3.MoveTowards(transform.position, path.vectorPath[currentWaypoint], Time.deltaTime * moveSpeed);
-        //controller.SimpleMove (dir);
         
         //Check if we are close enough to the next waypoint
         //If we are, proceed to follow the next waypoint
