@@ -6,7 +6,7 @@ using RTS;
 
 public class WorldObject : MonoBehaviour {
 
-	public string objectName;
+	public string objectName;	// TODO currently not unique - may cause a problem later on
 	public Texture2D buildImage;
 	public int cost, sellValue;
 	public int hitPoints, maxHitPoints;
@@ -33,6 +33,11 @@ public class WorldObject : MonoBehaviour {
 
 	private List< Material > oldMaterials = new List< Material >(); // Store the list of materials, to restore them later on
 
+	// Audio related variables
+	public AudioClip attackSound, selectSound, useWeaponSound;
+	public float attackVolume = 1.0f, selectVolume = 1.0f, useWeaponVolume = 1.0f;
+	protected AudioElement audioElement;
+
 
 	protected virtual void Awake() {
 		selectionBounds = ResourceManager.InvalidBounds;
@@ -48,6 +53,9 @@ public class WorldObject : MonoBehaviour {
     	if ( player ) {
     		SetTeamColor();
     	}
+
+    	// Initialise audio settings for the object
+    	InitialiseAudio();
 
 	}
  
@@ -75,7 +83,11 @@ public class WorldObject : MonoBehaviour {
 
 	public virtual void SetSelection(bool selected, Rect playingArea) {
     	currentlySelected = selected;
-    	if(selected) this.playingArea = playingArea;
+    	if (selected) {
+    		if (audioElement != null) 
+    			audioElement.Play(selectSound);
+    		this.playingArea = playingArea;
+    	}
 	}
 
 	public virtual void SetSelection(bool selected) {
@@ -172,6 +184,8 @@ public class WorldObject : MonoBehaviour {
 
 	// Method that initiate an attack (i.e. launch the attach if is range, adjust position if not)
 	protected virtual void BeginAttack(WorldObject target) {
+		if (audioElement != null) 
+			audioElement.Play(attackSound);
 	    this.target = target;
 	    if ( TargetInRange() ) {
 	        attacking = true;
@@ -374,8 +388,12 @@ public class WorldObject : MonoBehaviour {
 		}
 	}
 
-	// Method handling the firing part of the attack
+	// Method handling the firing part of the attack (and resetting the attack load time)
 	protected virtual void UseWeapon() {
+
+		if(audioElement != null) 
+			audioElement.Play(useWeaponSound);
+
 		// Reset the loading time of the weapon, for the next attack
 	    currentWeaponChargeTime = 0.0f;
 	    //this behaviour needs to be specified by a specific object
@@ -388,6 +406,29 @@ public class WorldObject : MonoBehaviour {
 	    	Destroy(gameObject);
 	    }
 	}
+
+	// Initialise the audio settings by creating the audio element containing the audio objects (containing the audio clip).
+	protected virtual void InitialiseAudio() {
+	    List< AudioClip > sounds = new List< AudioClip >();
+	    List< float > volumes = new List< float >();
+	    
+	    // TODO refactor those 3 calls (need to check how to use pointers inside safe context)
+	    if (attackVolume < 0.0f) attackVolume = 0.0f;
+	    if (attackVolume > 1.0f) attackVolume = 1.0f;
+	    sounds.Add(attackSound);
+	    volumes.Add(attackVolume);
+	    if (selectVolume < 0.0f) selectVolume = 0.0f;
+	    if (selectVolume > 1.0f) selectVolume = 1.0f;
+	    sounds.Add(selectSound);
+	    volumes.Add(selectVolume);
+	    if (useWeaponVolume < 0.0f) useWeaponVolume = 0.0f;
+	    if (useWeaponVolume > 1.0f) useWeaponVolume = 1.0f;
+	   	sounds.Add(useWeaponSound);
+	    volumes.Add(useWeaponVolume);
+	    audioElement = new AudioElement(sounds, volumes, objectName, this.transform);
+	}
+
+
 
 
 }

@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System.Collections.Generic;
  
 public class Worker : Unit {
  
@@ -7,6 +8,10 @@ public class Worker : Unit {
     private Building currentProject;
     private bool building = false;
     private float amountBuilt = 0.0f;
+
+    // Audio related variables
+    public AudioClip finishedJobSound;
+    public float finishedJobVolume = 1.0f;
  
     /*** Game Engine methods, all can be overridden by subclass ***/
  
@@ -30,6 +35,7 @@ public class Worker : Unit {
                     amountBuilt -= amount;
                     currentProject.Construct(amount);
                     if (!currentProject.UnderConstruction()) { 
+                        if (audioElement != null) audioElement.Play(finishedJobSound);
                         building = false;
                     }
                 }
@@ -54,6 +60,18 @@ public class Worker : Unit {
             }
         }
     }
+
+    protected override void InitialiseAudio () {
+        base.InitialiseAudio ();
+        if(finishedJobVolume < 0.0f) finishedJobVolume = 0.0f;
+        if(finishedJobVolume > 1.0f) finishedJobVolume = 1.0f;
+        List< AudioClip > sounds = new List< AudioClip >();
+        List< float > volumes = new List< float >();
+        sounds.Add(finishedJobSound);
+        volumes.Add (finishedJobVolume);
+        audioElement.Add(sounds, volumes);
+    }
+
  
     /*** Public Methods ***/
  

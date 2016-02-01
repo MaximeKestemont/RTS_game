@@ -19,6 +19,8 @@ public class PauseMenu : Menu {
     }
  
     protected override void HandleButton (string text) {
+        base.HandleButton(text);
+        
         switch(text) {
             case "Resume": 
             	Resume(); 

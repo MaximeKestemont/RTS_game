@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using RTS;
+using System.Collections.Generic;
  
 public class Harvester : Unit {
  
@@ -12,7 +13,11 @@ public class Harvester : Unit {
     private bool harvesting = false, emptying = false;
     private float currentLoad = 0.0f;
     private ResourceType harvestType;
-    private Resource resourceDeposit;				
+    private Resource resourceDeposit;		
+
+    // Audio related variables
+    public AudioClip emptyHarvestSound, harvestSound, startHarvestSound;
+    public float emptyHarvestVolume = 0.5f, harvestVolume = 0.5f, startHarvestVolume = 1.0f;		
  
     /*** Game Engine methods, all can be overridden by subclass ***/
  
@@ -80,6 +85,26 @@ public class Harvester : Unit {
     		GUI.DrawTexture(new Rect(leftPos, topPos, width, height), resourceBar);
     	}
 	}
+
+    protected override void InitialiseAudio () {
+        base.InitialiseAudio ();
+        List< AudioClip > sounds = new List< AudioClip >();
+        List< float > volumes = new List< float >();
+        if(emptyHarvestVolume < 0.0f) emptyHarvestVolume = 0.0f;
+        if(emptyHarvestVolume > 1.0f) emptyHarvestVolume = 1.0f;
+        sounds.Add(emptyHarvestSound);
+        volumes.Add(emptyHarvestVolume);
+        if(harvestVolume < 0.0f) harvestVolume = 0.0f;
+        if(harvestVolume > 1.0f) harvestVolume = 1.0f;
+        sounds.Add(harvestSound);
+        volumes.Add (harvestVolume);
+        if(startHarvestVolume < 0.0f) startHarvestVolume = 0.0f;
+        if(startHarvestVolume > 1.0f) startHarvestVolume = 1.0f;
+        sounds.Add(startHarvestSound);
+        volumes.Add(startHarvestVolume);
+        audioElement.Add(sounds, volumes);
+    }
+
  
     /* Public Methods */
  
@@ -106,11 +131,11 @@ public class Harvester : Unit {
                 if(resource && !resource.isEmpty()) {
                     //make sure that we select harvester remains selected
                     if(player.selections.Count > 0) { 
-                    	player.ResetSelection();
+                    	//player.ResetSelection();
                         //player.SelectedObject.SetSelection(false, playingArea);
                     }
-                    SetSelection(true, playingArea);
-                    player.selections.Add(this);
+                    //SetSelection(true, playingArea);
+                    //player.selections.Add(this);
                     StartHarvest(resource);
                 }
             } else StopHarvest();
@@ -120,6 +145,8 @@ public class Harvester : Unit {
     /* Private Methods */
  
     private void StartHarvest(Resource resource) {
+        if(audioElement != null) audioElement.Play(startHarvestSound);
+
     	resourceDeposit = resource;
     	StartMove(resource.transform.position, resource.gameObject);
     	
@@ -137,6 +164,8 @@ public class Harvester : Unit {
     }
 
     private void Collect() {
+        if(audioElement != null) audioElement.Play(harvestSound);
+
     	float collect = collectionAmount * Time.deltaTime;
     	//make sure that the harvester cannot collect more than it can carry
     	if (currentLoad + collect > capacity) {
@@ -147,6 +176,8 @@ public class Harvester : Unit {
 	}
  
 	private void Deposit() {
+        if(audioElement != null) audioElement.Play(emptyHarvestSound);
+
     	currentDeposit += depositAmount * Time.deltaTime;
     	int deposit = Mathf.FloorToInt(currentDeposit);
     	if(deposit >= 1) {

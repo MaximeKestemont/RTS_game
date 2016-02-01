@@ -1,10 +1,16 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 using RTS;
  
 // General class for menu. Override the SetButtons method to add specific buttons to child menu. 
 public class Menu : MonoBehaviour {
  
+    // Variables related to the clickSound in the menu
+    public AudioClip clickSound;
+    public float clickVolume = 1.0f;
+    protected AudioElement audioElement;
+
     public GUISkin mySkin;
     public Texture2D header;
  
@@ -12,6 +18,8 @@ public class Menu : MonoBehaviour {
  
     protected virtual void Start () {
         SetButtons();
+
+        InitialiseAudio();
     }
  
     protected virtual void OnGUI() {
@@ -55,6 +63,9 @@ public class Menu : MonoBehaviour {
     }
  
     protected virtual void HandleButton(string text) {
+        if (audioElement != null) 
+            audioElement.Play(clickSound);
+        
         //a child class needs to set this to handle button clicks
     }
  
@@ -72,5 +83,18 @@ public class Menu : MonoBehaviour {
  
     protected void ExitGame() {
         Application.Quit();
+    }
+
+    // Initialise the audio settings by creating the audio element containing the audio objects (containing the audio clip).
+    protected virtual void InitialiseAudio() {
+        List< AudioClip > sounds = new List< AudioClip >();
+        List< float > volumes = new List< float >();
+        
+        // TODO refactor those 3 calls (need to check how to use pointers inside safe context)
+        if (clickVolume < 0.0f) clickVolume = 0.0f;
+        if (clickVolume > 1.0f) clickVolume = 1.0f;
+        sounds.Add(clickSound);
+        volumes.Add(clickVolume);
+        audioElement = new AudioElement(sounds, volumes, "Menu", this.transform);
     }
 }

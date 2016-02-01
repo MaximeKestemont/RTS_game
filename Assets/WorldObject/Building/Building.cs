@@ -15,7 +15,9 @@ public class Building : WorldObject {
 	private Vector3 spawnPoint;
     private bool needsBuilding = false;
 
-
+    // Audio related variables
+    public AudioClip finishedJobSound;
+    public float finishedJobVolume = 1.0f;
 
 	protected override void Awake() {
     	base.Awake();
@@ -84,6 +86,8 @@ public class Building : WorldObject {
         	currentBuildProgress += Time.deltaTime * ResourceManager.BuildSpeed;
         	if(currentBuildProgress > maxBuildProgress) {
             	if (player) {
+                    if (audioElement != null) 
+                        audioElement.Play(finishedJobSound);
             		player.AddUnit(buildQueue.Dequeue(), spawnPoint, rallyPoint, transform.rotation, this);
             	}
             	currentBuildProgress = 0.0f;
@@ -177,6 +181,17 @@ public class Building : WorldObject {
         float spawnZ = selectionBounds.center.z + transform.forward.z + selectionBounds.extents.z + transform.forward.z * 10;
         spawnPoint = new Vector3(spawnX, 0.0f, spawnZ);
         rallyPoint = spawnPoint;
+    }
+
+    protected override void InitialiseAudio () {
+        base.InitialiseAudio ();
+        if (finishedJobVolume < 0.0f) finishedJobVolume = 0.0f;
+        if (finishedJobVolume > 1.0f) finishedJobVolume = 1.0f;
+        List< AudioClip > sounds = new List< AudioClip >();
+        List< float > volumes = new List< float >();
+        sounds.Add(finishedJobSound);
+        volumes.Add (finishedJobVolume);
+        audioElement.Add(sounds, volumes);
     }
 
 }

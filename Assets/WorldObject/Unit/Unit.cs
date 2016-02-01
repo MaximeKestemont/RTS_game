@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 using RTS;
 using Pathfinding;
 
@@ -18,6 +19,9 @@ public class Unit : WorldObject {
     public float nextWaypointDistance = 3;       // max distance from a waypoint to continue to the next waypoint
     private int currentWaypoint = 0;             // the waypoint we are currently moving towards
 
+    // Audio related variables 
+    public AudioClip moveSound;
+    public float moveVolume = 1.0f;
 
 
 	/*** Game Engine methods, all can be overridden by subclass ***/
@@ -27,7 +31,8 @@ public class Unit : WorldObject {
 
         Debug.Log("Player " + transform.root.GetComponent< Player >());
         Debug.Log("Unit : " + this);
-        transform.root.GetComponent< Player >().AddUnitInList(this);
+        if (transform.root.GetComponent< Player >())
+            transform.root.GetComponent< Player >().AddUnitInList(this);
 	}
 
 	protected override void Start() {
@@ -122,6 +127,8 @@ public class Unit : WorldObject {
 	}
 
 	public virtual void StartMove(Vector3 destination) {
+        if (audioElement != null) 
+            audioElement.Play (moveSound);
     	this.destination = destination;
         destinationTarget = null;
     	rotating = true;
@@ -238,6 +245,18 @@ public class Unit : WorldObject {
         destination.y = destinationTarget.transform.position.y;
         //Debug.Log("Destination " + destination);
         destinationTarget = null;
+    }
+
+
+    protected override void InitialiseAudio () {
+        base.InitialiseAudio ();
+        List< AudioClip > sounds = new List< AudioClip >();
+        List< float > volumes = new List< float >();
+        if(moveVolume < 0.0f) moveVolume = 0.0f;
+        if(moveVolume > 1.0f) moveVolume = 1.0f; 
+        sounds.Add(moveSound);
+        volumes.Add(moveVolume);
+        audioElement.Add(sounds, volumes);
     }
 
 }
