@@ -79,7 +79,7 @@ public class Worker : Unit {
     public override void MouseClick (GameObject hitObject, Vector3 hitPoint, Player controller) {
         bool doBase = true;
         //only handle input if owned by a human player and currently selected
-        if(player && player.human && currentlySelected && hitObject && hitObject.name!="Ground") {
+        if (player && player.human && currentlySelected && hitObject && hitObject.name!="Ground" && hitObject.name!="Bridge" ) {
             Building building = hitObject.transform.parent.GetComponent< Building >();
             if(building) {
                 if(building.UnderConstruction()) {

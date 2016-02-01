@@ -3,9 +3,22 @@ using System.Collections;
 using System.Collections.Generic;
  
 namespace RTS {
-	// TODO Whats the goal of this class again??
     public static class ResourceManager {
- 
+		
+		// Menu related variables
+		public static bool MenuOpen { get; set; }
+		private static float buttonHeight = 40;
+		private static float headerHeight = 32, headerWidth = 256;
+		private static float textHeight = 25, padding = 10;
+		public static float PauseMenuHeight { get { return headerHeight + 2 * buttonHeight + 4 * padding; } }
+		public static float MenuWidth { get { return headerWidth + 2 * padding; } }
+		public static float ButtonHeight { get { return buttonHeight; } }
+		public static float ButtonWidth { get { return (MenuWidth - 3 * padding) / 2; } }
+		public static float HeaderHeight { get { return headerHeight; } }
+		public static float HeaderWidth { get { return headerWidth; } }
+		public static float TextHeight { get { return textHeight; } }
+		public static float Padding { get { return padding; } } 
+
 		public static float ScrollSpeed { get { return 25; } }
 		public static float RotateSpeed { get { return 100; } }
 		public static float RotateAmount { get { return 10; } }
@@ -14,7 +27,7 @@ namespace RTS {
 		public static int BuildSpeed { get { return 1; } }
 		
 		// Width from which the camera can be moved (starting from the edge of the screen)
-		public static int ScrollWidth { get { return 15; } }
+		public static int ScrollWidth { get { return 30; } }
 
 		public static float MinCameraHeight { get { return 10; } }
 		public static float MaxCameraHeight { get { return 40; } }
@@ -84,21 +97,6 @@ namespace RTS {
     		damagedTexture = damaged;
     		criticalTexture = critical;
 		}
-
-
-		// Menu related variables
-		public static bool MenuOpen { get; set; }
-		private static float buttonHeight = 40;
-		private static float headerHeight = 32, headerWidth = 256;
-		private static float textHeight = 25, padding = 10;
-		public static float PauseMenuHeight { get { return headerHeight + 2 * buttonHeight + 4 * padding; } }
-		public static float MenuWidth { get { return headerWidth + 2 * padding; } }
-		public static float ButtonHeight { get { return buttonHeight; } }
-		public static float ButtonWidth { get { return (MenuWidth - 3 * padding) / 2; } }
-		public static float HeaderHeight { get { return headerHeight; } }
-		public static float HeaderWidth { get { return headerWidth; } }
-		public static float TextHeight { get { return textHeight; } }
-		public static float Padding { get { return padding; } }
 
     }
 }

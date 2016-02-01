@@ -32,7 +32,7 @@ public class UserInput : MonoBehaviour {
 
 		bool mouseScroll = false;
 		
-		//horizontal camera movement
+		// horizontal camera movement
 		if(xpos >= 0 && xpos < ResourceManager.ScrollWidth) {
 			movement.x -= ResourceManager.ScrollSpeed;
 			player.hud.SetCursorState(CursorState.PanLeft);
