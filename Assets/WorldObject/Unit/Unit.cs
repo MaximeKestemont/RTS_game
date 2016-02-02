@@ -29,17 +29,18 @@ public class Unit : WorldObject {
 	protected override void Awake() {
 		base.Awake();
 
+        //Get a reference to the Seeker component we added earlier
+        seeker = GetComponent<Seeker>();
+
         Debug.Log("Player " + transform.root.GetComponent< Player >());
         Debug.Log("Unit : " + this);
+
         if (transform.root.GetComponent< Player >())
             transform.root.GetComponent< Player >().AddUnitInList(this);
 	}
 
 	protected override void Start() {
 		base.Start();
-
-        //Get a reference to the Seeker component we added earlier
-        seeker = GetComponent<Seeker>();
 	}
 
 	protected override void Update () {
@@ -135,7 +136,8 @@ public class Unit : WorldObject {
     	moving = false;
 
         // Start a new path to the targetPosition, return the result to the OnPathComplete function
-        seeker.StartPath (transform.position,this.destination, OnPathComplete);
+        Debug.Log("Destination :  " + this.destination);
+        seeker.StartPath (transform.position, this.destination, OnPathComplete);
 	}	
 
     public virtual void StartMove(Vector3 destination, GameObject destinationTarget) {

@@ -139,6 +139,7 @@ public class Building : WorldObject {
     		player.AddResource(ResourceType.Money, sellValue);
     	if ( currentlySelected ) 
     		SetSelection(false, playingArea);
+            player.selections.Remove(this);
     	
     	Destroy(this.gameObject);
 	}
