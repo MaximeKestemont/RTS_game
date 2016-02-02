@@ -56,9 +56,10 @@ public class Building : WorldObject {
     	base.SetHoverState(hoverObject);
     	
     	//only handle input if owned by a human player and currently selected
-    	if(player && player.human && currentlySelected) {
+    	if (player && player.human && currentlySelected) {
         	if(hoverObject.name == "Ground") {
-            	if(player.hud.GetPreviousCursorState() == CursorState.RallyPoint) player.hud.SetCursorState(CursorState.RallyPoint);
+            	if(player.hud.GetPreviousCursorState() == CursorState.RallyPoint) 
+                    player.hud.SetCursorState(CursorState.RallyPoint);
         	}
     	}
 	}
@@ -114,11 +115,11 @@ public class Building : WorldObject {
 
 	public override void MouseClick(GameObject hitObject, Vector3 hitPoint, Player controller) {
     	base.MouseClick(hitObject, hitPoint, controller);
-    	
-    	//only handle iput if owned by a human player and currently selected
+
+    	//only handle input if owned by a human player and currently selected
     	if ( player && player.human && currentlySelected ) {
-        	if(hitObject.name == "Ground") {
-            	if((player.hud.GetCursorState() == CursorState.RallyPoint || player.hud.GetPreviousCursorState() == CursorState.RallyPoint) && hitPoint != ResourceManager.InvalidPosition) {
+        	if ( hitObject.name == "Ground" ) {
+            	if (hitPoint != ResourceManager.InvalidPosition) {
                 	SetRallyPoint(hitPoint);
             	}
         	}
@@ -130,7 +131,7 @@ public class Building : WorldObject {
     	if(player && player.human && currentlySelected) {
         	RallyPoint flag = player.GetComponentInChildren< RallyPoint >();
         	if ( flag ) 
-        		flag.transform.localPosition = rallyPoint;
+        		flag.transform.position = rallyPoint;
     	}
 	}
 
@@ -179,8 +180,9 @@ public class Building : WorldObject {
 
     private void SetSpawnPoint() {
         float spawnX = selectionBounds.center.x + transform.forward.x * selectionBounds.extents.x + transform.forward.x * 10;
+        float spawnY = selectionBounds.center.y;
         float spawnZ = selectionBounds.center.z + transform.forward.z + selectionBounds.extents.z + transform.forward.z * 10;
-        spawnPoint = new Vector3(spawnX, 0.0f, spawnZ);
+        spawnPoint = new Vector3(spawnX, spawnY, spawnZ);
         rallyPoint = spawnPoint;
     }
 

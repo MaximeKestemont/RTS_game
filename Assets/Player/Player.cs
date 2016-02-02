@@ -78,6 +78,7 @@ public class Player : MonoBehaviour {
 	public void AddUnit(string unitName, Vector3 spawnPoint, Vector3 rallyPoint, Quaternion rotation, Building creator) {
     	Debug.Log ("add " + unitName + " to player");
 
+    	Debug.Log("Spawn point : " + spawnPoint);
 		GameObject newUnit = (GameObject)Instantiate(ResourceManager.GetUnit(unitName), spawnPoint, rotation);
 		
 		// parent of unit = Units (list of all units of the player)
@@ -99,7 +100,6 @@ public class Player : MonoBehaviour {
     {
         ResetSelection();
         
-        Debug.Log("UNITS : " + unitsList.Count);
         for ( int i = 0 ; i < unitsList.Count ; ++i ) {
         	Unit u = unitsList[i];
             

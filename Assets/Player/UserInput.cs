@@ -242,7 +242,8 @@ public class UserInput : MonoBehaviour {
 
 	        	GameObject hitObject = WorkManager.FindHitObject(Input.mousePosition);
 	        	Vector3 hitPoint = WorkManager.FindHitPoint(Input.mousePosition);
-	        	
+	        	Debug.Log("RIGHT CLICK hitpoint : " + hitPoint);
+
 	        	lock (player.selections) {
 		        	foreach (WorldObject obj in player.selections) {
 		        		Debug.Log("Action will start");
