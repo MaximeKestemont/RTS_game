@@ -35,6 +35,7 @@ public class Player : MonoBehaviour {
 	void Awake() {
     	resources = InitResourceList();
     	resourceLimits = InitResourceList();
+    	ResourceManager.AddPlayer(this);
 	}
 	
 	// Update is called once per frame
@@ -52,6 +53,7 @@ public class Player : MonoBehaviour {
     			}
 			}
 		}
+		Debug.Log("Number of players : " + ResourceManager.GetPlayers().Count);
 	}
 
 	private Dictionary< ResourceType, int > InitResourceList() {
@@ -78,7 +80,6 @@ public class Player : MonoBehaviour {
 	public void AddUnit(string unitName, Vector3 spawnPoint, Vector3 rallyPoint, Quaternion rotation, Building creator) {
     	Debug.Log ("add " + unitName + " to player");
 
-    	Debug.Log("Spawn point : " + spawnPoint);
 		GameObject newUnit = (GameObject)Instantiate(ResourceManager.GetUnit(unitName), spawnPoint, rotation);
 		
 		// parent of unit = Units (list of all units of the player)
@@ -110,7 +111,6 @@ public class Player : MonoBehaviour {
             }
 
         }
-        Debug.Log("Selection : " + selections.Count);
     }
 
     public void AddSelection(Unit u)
@@ -130,6 +130,10 @@ public class Player : MonoBehaviour {
 
     public void AddUnitInList(Unit unit) {
     	unitsList.Add(unit);
+    }
+
+    public List<Unit> GetUnitList() {
+    	return unitsList;
     }
 
 

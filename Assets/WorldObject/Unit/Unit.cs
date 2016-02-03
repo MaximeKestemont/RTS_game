@@ -32,9 +32,6 @@ public class Unit : WorldObject {
         //Get a reference to the Seeker component we added earlier
         seeker = GetComponent<Seeker>();
 
-        Debug.Log("Player " + transform.root.GetComponent< Player >());
-        Debug.Log("Unit : " + this);
-
         if (transform.root.GetComponent< Player >())
             transform.root.GetComponent< Player >().AddUnitInList(this);
 	}
@@ -118,7 +115,6 @@ public class Unit : WorldObject {
         	if ( (hitObject.name == "Ground" || hitObject.name == "Bridge" || clickedOnEmptyResource ) && hitPoint != ResourceManager.InvalidPosition) {
             	float x = hitPoint.x;
             	//makes sure that the unit stays on top of the surface it is on
-                Debug.Log("Height of Ground : " + hitPoint.y);
             	float y = hitPoint.y + this.transform.position.y; //player.SelectedObject.transform.position.y;
             	float z = hitPoint.z;
             	Vector3 destination = new Vector3(x, y, z);
@@ -136,7 +132,6 @@ public class Unit : WorldObject {
     	moving = false;
 
         // Start a new path to the targetPosition, return the result to the OnPathComplete function
-        Debug.Log("Destination :  " + this.destination);
         seeker.StartPath (transform.position, this.destination, OnPathComplete);
 	}	
 
@@ -248,6 +243,40 @@ public class Unit : WorldObject {
         //Debug.Log("Destination " + destination);
         destinationTarget = null;
     }
+
+
+    // This method checks that the unit is not moving too close to another unit. If this is the case, the position is slighty changed.
+    private Vector3 CalculateFlocking()
+    {
+        Vector3 ret = Vector3.zero;
+
+        foreach ( Player player in ResourceManager.GetPlayers() ) {
+            foreach ( Unit unit in player.GetUnitList() ) {
+
+                if ( this != unit ) {
+                    // TODO check that the computation here is correct
+                    Vector3 delta = this.transform.position - unit.transform.position;
+                    delta.y = 0;    // TODO to change if air unit at one point
+                    float dist = delta.magnitude;
+                    float mindist = 1; // TODO to replace with the bounds computation ... this.transform.Radius + unit.transform.Radius;  // minimal distance required between the 2 objects = radius sum
+
+                    if ( dist < mindist ) {
+                        if ( dist < 0.1 ) delta = new Vector3(Random.Range(-0.5f, 0.5f), 0, Random.Range(-0.5f, 0.5f));
+                        float weight = mindist - dist;
+                        if ( weight < 0 ) weight = 0;
+                        ret += delta.normalized * weight;
+                    }
+                }
+
+            }
+        }
+        return ret;
+
+    }
+
+
+
+
 
 
     protected override void InitialiseAudio () {

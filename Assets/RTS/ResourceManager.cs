@@ -77,6 +77,7 @@ namespace RTS {
     		return gameObjectList.GetBuildImage(name);
 		}
 
+
 		// Set the health bar texture for resources (ore,...)
 		public static void SetResourceHealthBarTextures(Dictionary< ResourceType, Texture2D > images) {
     		resourceHealthBarTextures = images;
@@ -97,6 +98,22 @@ namespace RTS {
     		damagedTexture = damaged;
     		criticalTexture = critical;
 		}
+
+		// Player related variables
+		private static List<Player> listPlayers = new List<Player>();		// List of players
+
+		public static void AddPlayer(Player player) {
+			listPlayers.Add(player);
+		}
+
+		public static void RemovePlayer(Player player) {
+			listPlayers.Remove(player);
+		}
+
+		public static List<Player> GetPlayers() {
+			return listPlayers;
+		}
+
 
     }
 }
