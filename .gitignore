@@ -5,11 +5,12 @@ Temp/
 Library/
 
 
-# ===================================== #
-# Visual Studio / MonoDevelop generated #
-# ===================================== #
+# ========================================== #
+# Visual Studio / MonoDevelop / Vi generated #
+# ========================================== #
 *.csproj
 *.sln
+*.swp
 
 # ============ #
 # OS generated #
