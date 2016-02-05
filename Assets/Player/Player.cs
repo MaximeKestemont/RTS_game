@@ -214,7 +214,9 @@ public class Player : MonoBehaviour {
 	    return canPlace;
 	}
 
-	public void StartConstruction() {
+
+	public void StartConstruction() 
+	{
 	    // Stop the placement mode
 	    findingPlacement = false;
 	    
@@ -234,8 +236,10 @@ public class Player : MonoBehaviour {
 	    tempBuilding = null;
 	}
 
+
 	// Cancel the building placement. Triggered by right-clicking.
-	public void CancelBuildingPlacement() {
+	public void CancelBuildingPlacement() 
+	{
 	    findingPlacement = false;
 	    Destroy(tempBuilding.gameObject);
 	    tempBuilding = null;

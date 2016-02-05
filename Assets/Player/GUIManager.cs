@@ -1,11 +1,13 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+// Class responsible of displaying GUI on the playing area (not the HUD !).
+// Currently, it handles the drawing of the selection box.
+// TODO put the selected box inside this class too
 public class GUIManager : MonoBehaviour {
 
 	private bool showRect;
     private Rect selectionRect;
-
 
     public void setSelectionBox(bool b, Rect rect) { showRect = b; selectionRect = rect; }
 	

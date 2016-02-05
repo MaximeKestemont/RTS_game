@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
  
 namespace RTS {
+	// This class stores the static global variables (not STATE variables !), that are re-used accross several classes.
     public static class ResourceManager {
 		
 		// Menu related variables
@@ -19,23 +20,24 @@ namespace RTS {
 		public static float TextHeight { get { return textHeight; } }
 		public static float Padding { get { return padding; } } 
 
+
+		// Camera related variables
 		public static float ScrollSpeed { get { return 25; } }
 		public static float RotateSpeed { get { return 100; } }
 		public static float RotateAmount { get { return 10; } }
+		public static int ScrollWidth { get { return 30; } }			// Width from which the camera can be moved (starting from the edge of the screen)
+		public static float MinCameraHeight { get { return 10; } }
+		public static float MaxCameraHeight { get { return 40; } }
+
 
 		// Speed to build units in queue
 		public static int BuildSpeed { get { return 1; } }
 		
-		// Width from which the camera can be moved (starting from the edge of the screen)
-		public static int ScrollWidth { get { return 30; } }
-
-		public static float MinCameraHeight { get { return 10; } }
-		public static float MaxCameraHeight { get { return 40; } }
-
+		
+		// Invalid related variables		
 		private static Vector3 invalidPosition = new Vector3(-99999, -99999, -99999);
-		public static Vector3 InvalidPosition { get { return invalidPosition; } }
-
 		private static Bounds invalidBounds = new Bounds(new Vector3(-99999, -99999, -99999), new Vector3(0, 0, 0));
+		public static Vector3 InvalidPosition { get { return invalidPosition; } }
 		public static Bounds InvalidBounds { get { return invalidBounds; } }
 
 
@@ -45,10 +47,33 @@ namespace RTS {
 		public static Texture2D DamagedTexture { get { return damagedTexture; } }
 		public static Texture2D CriticalTexture { get { return criticalTexture; } }
 		private static Dictionary< ResourceType, Texture2D > resourceHealthBarTextures; // for resources (ore,...)
+		
+		// Set the health bar texture for resources (ore,...)
+		public static void SetResourceHealthBarTextures(Dictionary< ResourceType, Texture2D > images) {
+    		resourceHealthBarTextures = images;
+		}
 
-		// Resource box skin (stored here as it is the same for all objects)
+		// Get the health bar texture for resources (ore,...)
+		public static Texture2D GetResourceHealthBar(ResourceType resourceType) {
+    		if(resourceHealthBarTextures != null && resourceHealthBarTextures.ContainsKey(resourceType)) {
+    			return resourceHealthBarTextures[resourceType];
+    		} else {
+    			return null;
+    		}
+		}
+
+
+		// Select box skin (stored here as it is the same for all objects)
 		private static GUISkin selectBoxSkin;
 		public static GUISkin SelectBoxSkin { get { return selectBoxSkin; }}
+
+		public static void StoreSelectBoxItems(GUISkin skin, Texture2D healthy, Texture2D damaged, Texture2D critical) {
+			selectBoxSkin = skin;
+			healthyTexture = healthy;
+    		damagedTexture = damaged;
+    		criticalTexture = critical;
+		}
+
 
 		// GameObject list
 		private static GameObjectList gameObjectList;
@@ -56,7 +81,7 @@ namespace RTS {
     		gameObjectList = objectList;
 		}
 
-		// Wrapper method // TODO are those really useful?
+		// Wrapper method
 		public static GameObject GetBuilding(string name) {
     		return gameObjectList.GetBuilding(name);
 		}
@@ -77,27 +102,6 @@ namespace RTS {
     		return gameObjectList.GetBuildImage(name);
 		}
 
-
-		// Set the health bar texture for resources (ore,...)
-		public static void SetResourceHealthBarTextures(Dictionary< ResourceType, Texture2D > images) {
-    		resourceHealthBarTextures = images;
-		}
-
-		// Get the health bar texture for resources (ore,...)
-		public static Texture2D GetResourceHealthBar(ResourceType resourceType) {
-    		if(resourceHealthBarTextures != null && resourceHealthBarTextures.ContainsKey(resourceType)) {
-    			return resourceHealthBarTextures[resourceType];
-    		} else {
-    			return null;
-    		}
-		}
-
-		public static void StoreSelectBoxItems(GUISkin skin, Texture2D healthy, Texture2D damaged, Texture2D critical) {
-			selectBoxSkin = skin;
-			healthyTexture = healthy;
-    		damagedTexture = damaged;
-    		criticalTexture = critical;
-		}
 
 		// Player related variables
 		private static List<Player> listPlayers = new List<Player>();		// List of players

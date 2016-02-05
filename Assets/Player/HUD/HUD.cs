@@ -6,6 +6,7 @@ using RTS;
 
 public class HUD : MonoBehaviour {
 
+    // Those variables are not in the ResourceManager because they are not re-used by other classes.
 	private const int ORDERS_BAR_WIDTH = 150, RESOURCE_BAR_HEIGHT = 40;
 	private const int SELECTION_NAME_HEIGHT = 15;
     private const int ICON_WIDTH = 32, ICON_HEIGHT = 32, TEXT_WIDTH = 128, TEXT_HEIGHT = 32;
@@ -44,8 +45,10 @@ public class HUD : MonoBehaviour {
     private float sliderValue;
     private CursorState previousCursorState;
 
-	// Use this for initialization
-	void Start () {
+
+
+	public void Start () 
+    {
 		player = transform.root.GetComponent< Player >();
 
         // Load the select box skin
@@ -59,8 +62,8 @@ public class HUD : MonoBehaviour {
         resourceLimits = new Dictionary< ResourceType, int >();
 
         resourceImages = new Dictionary< ResourceType, Texture2D >();
-        for(int i = 0; i < resources.Length; i++) {
-            switch(resources[i].name) {
+        for (int i = 0; i < resources.Length; i++) {
+            switch (resources[i].name) {
                 case "Money":
                     resourceImages.Add(ResourceType.Money, resources[i]);
                     resourceValues.Add(ResourceType.Money, 0);
@@ -79,8 +82,8 @@ public class HUD : MonoBehaviour {
 
         // Init the resource health bar
         Dictionary< ResourceType, Texture2D > resourceHealthBarTextures = new Dictionary< ResourceType, Texture2D >();
-        for(int i = 0; i < resourceHealthBars.Length; i++) {
-            switch(resourceHealthBars[i].name) {
+        for (int i = 0; i < resourceHealthBars.Length; i++) {
+            switch (resourceHealthBars[i].name) {
             case "ore":
                 resourceHealthBarTextures.Add(ResourceType.Ore, resourceHealthBars[i]);
                 break;
@@ -92,13 +95,14 @@ public class HUD : MonoBehaviour {
 	
 
     // Method to draw everything UI related
-	void OnGUI () {
-		if(player && player.human) {
+	public void OnGUI () {
+		if (player && player.human) {
     		DrawOrdersBar();
     		DrawResourceBar();
             DrawMouseCursor();
 		}
 	}
+
 
     public void SetResourceValues(Dictionary< ResourceType, int > resourceValues, Dictionary< ResourceType, int > resourceLimits) {
         this.resourceValues = resourceValues;
@@ -147,15 +151,14 @@ public class HUD : MonoBehaviour {
                 lastSelection = selectedObject;
 
                 Building selectedBuilding = lastSelection.GetComponent< Building >();
-                if(selectedBuilding) {
+                if (selectedBuilding) {
                     DrawBuildQueue(selectedBuilding.getBuildQueueValues(), selectedBuilding.getBuildPercentage());
                     DrawStandardBuildingOptions(selectedBuilding);
                 }
             }
-
 		}
 
-        if(!selectionName.Equals("")) {
+        if (!selectionName.Equals("")) {
             int leftPos = BUILD_IMAGE_WIDTH + SCROLL_BAR_WIDTH / 2;
             int topPos = buildAreaHeight + BUTTON_SPACING;
             GUI.Label(new Rect(leftPos, topPos, ORDERS_BAR_WIDTH, SELECTION_NAME_HEIGHT), selectionName);
@@ -167,11 +170,10 @@ public class HUD : MonoBehaviour {
 	private void DrawResourceBar() {
     	GUI.skin = resourceSkin;
     	GUI.BeginGroup(new Rect(
-    		0,
+            0,
     		0,
     		Screen.width,
-    		RESOURCE_BAR_HEIGHT)
-    	);
+    		RESOURCE_BAR_HEIGHT));
     	GUI.Box(new Rect(0,0,Screen.width,RESOURCE_BAR_HEIGHT),"");
 
         int topPos = 4, iconLeft = 4, textLeft = 20;
@@ -208,8 +210,8 @@ public class HUD : MonoBehaviour {
     }
 
     private void UpdateCursorAnimation() {
-        //sequence animation for cursor (based on more than one image for the cursor)
-        //change once per second, loops through array of images
+        // sequence animation for cursor (based on more than one image for the cursor)
+        // change once per second, loops through array of images
         if(activeCursorState == CursorState.Move) {
             currentFrame = (int)Time.time % moveCursors.Length;
             activeCursor = moveCursors[currentFrame];
@@ -222,30 +224,37 @@ public class HUD : MonoBehaviour {
         }
     }
 
-    private Rect GetCursorDrawPosition() {
-        //set base position for custom cursor image
+
+    private Rect GetCursorDrawPosition() 
+    {
+        // set base position for custom cursor image
         float leftPos = Input.mousePosition.x;
         float topPos = Screen.height - Input.mousePosition.y; //screen draw coordinates are inverted
-        //adjust position base on the type of cursor being shown
-        if(activeCursorState == CursorState.PanRight) leftPos = Screen.width - activeCursor.width;
-        else if ( activeCursorState == CursorState.PanDown ) topPos = Screen.height - activeCursor.height;
-        else if ( activeCursorState == CursorState.Move 
-            || activeCursorState == CursorState.Select 
-            || activeCursorState == CursorState.Harvest) {
+        
+        // adjust position base on the type of cursor being shown
+        if (activeCursorState == CursorState.PanRight) {
+            leftPos = Screen.width - activeCursor.width;
+        } else if ( activeCursorState == CursorState.PanDown ) {
+            topPos = Screen.height - activeCursor.height;
+        } else if ( activeCursorState == CursorState.Move 
+                    || activeCursorState == CursorState.Select 
+                    || activeCursorState == CursorState.Harvest) {
             topPos -= activeCursor.height / 2;
             leftPos -= activeCursor.width / 2;
-        } else if ( activeCursorState == CursorState.RallyPoint ) 
+        } else if ( activeCursorState == CursorState.RallyPoint ) { 
             topPos -= activeCursor.height;
+        }
         
         return new Rect(leftPos, topPos, activeCursor.width, activeCursor.height);
     }
 
-    public void SetCursorState(CursorState newState) {
+
+    public void SetCursorState(CursorState newState) 
+    {
         if ( activeCursorState != newState ) 
             previousCursorState = activeCursorState;
         
-        activeCursorState = newState;
-        
+        activeCursorState = newState;    
         switch(newState) {
             case CursorState.Select:
                 activeCursor = selectCursor;
@@ -285,6 +294,7 @@ public class HUD : MonoBehaviour {
         return previousCursorState;
     }
 
+
     private void DrawActions(string[] actions) {
         GUIStyle buttons = new GUIStyle();
         buttons.hover.background = buttonHover;
@@ -292,14 +302,16 @@ public class HUD : MonoBehaviour {
         GUI.skin.button = buttons;
         
         int numActions = actions.Length;
-        //define the area to draw the actions inside
-        GUI.BeginGroup(new Rect(BUILD_IMAGE_WIDTH, 0, ORDERS_BAR_WIDTH, buildAreaHeight));
-        //draw scroll bar for the list of actions if need be
-        if(numActions >= MaxNumRows(buildAreaHeight)) {
+
+        // define the area to draw the actions inside
+        GUI.BeginGroup( new Rect( BUILD_IMAGE_WIDTH, 0, ORDERS_BAR_WIDTH, buildAreaHeight ) );
+
+        // draw scroll bar for the list of actions if need be
+        if (numActions >= MaxNumRows(buildAreaHeight)) {
             DrawSlider(buildAreaHeight, numActions / 2.0f);
         }
     
-        //display possible actions as buttons and handle the button click for each
+        // display possible actions as buttons and handle the button click for each
         for(int i = 0; i < numActions; i++) {
             int column = i % 2;
             int row = i / 2;
@@ -318,8 +330,9 @@ public class HUD : MonoBehaviour {
         GUI.EndGroup();
     }
 
-    private void DrawBuildQueue(string[] buildQueue, float buildPercentage) {
-        for(int i = 0; i < buildQueue.Length; i++) {
+    private void DrawBuildQueue(string[] buildQueue, float buildPercentage) 
+    {
+        for (int i = 0; i < buildQueue.Length; i++) {
             float topPos = i * BUILD_IMAGE_HEIGHT - (i+1) * BUILD_IMAGE_PADDING;
             Rect buildPos = new Rect(BUILD_IMAGE_PADDING, topPos, BUILD_IMAGE_WIDTH, BUILD_IMAGE_HEIGHT);
             GUI.DrawTexture(buildPos, ResourceManager.GetBuildImage(buildQueue[i]));
@@ -327,7 +340,7 @@ public class HUD : MonoBehaviour {
             topPos += BUILD_IMAGE_PADDING;
             float width = BUILD_IMAGE_WIDTH - 2 * BUILD_IMAGE_PADDING;
             float height = BUILD_IMAGE_HEIGHT - 2 * BUILD_IMAGE_PADDING;
-            if(i==0) {
+            if ( i==0 ) {
                 //shrink the build mask on the item currently being built to give an idea of progress
                 topPos += height * buildPercentage;
                 height *= (1 - buildPercentage);
@@ -336,7 +349,8 @@ public class HUD : MonoBehaviour {
         }
     }
 
-    private void DrawStandardBuildingOptions(Building building) {
+    private void DrawStandardBuildingOptions(Building building) 
+    {
         GUIStyle buttons = new GUIStyle();
         buttons.hover.background = smallButtonHover;
         buttons.active.background = smallButtonClick;
@@ -346,11 +360,11 @@ public class HUD : MonoBehaviour {
         int width = BUILD_IMAGE_WIDTH / 2;
         int height = BUILD_IMAGE_HEIGHT / 2;
 
-        if(GUI.Button(new Rect(leftPos, topPos, width, height), building.sellImage)) {
+        if (GUI.Button(new Rect(leftPos, topPos, width, height), building.sellImage)) {
             building.Sell();
         }
 
-        if(building.hasSpawnPoint()) {
+        if (building.hasSpawnPoint()) {
             leftPos += width + BUTTON_SPACING;
             if ( GUI.Button(new Rect(leftPos, topPos, width, height), building.rallyPointImage) ) {
                 if ( activeCursorState != CursorState.RallyPoint && previousCursorState != CursorState.RallyPoint ) {
@@ -365,7 +379,6 @@ public class HUD : MonoBehaviour {
     }
 
 
-    // TODO Why a method, and not a Constant = buildAreaHeight/BUILD_IMAGE_HEIGHT
     private int MaxNumRows(int areaHeight) {
         return areaHeight / BUILD_IMAGE_HEIGHT;
     }

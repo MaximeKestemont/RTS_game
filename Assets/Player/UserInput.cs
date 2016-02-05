@@ -9,6 +9,12 @@ public class UserInput : MonoBehaviour {
 	private Player player;
 	private GUIManager guiManager;
 
+	// Variables related to the selection box
+	private bool selectionBox;
+    private Vector3 oldMouse;
+    private Vector3 selectionStart;
+    private Rect boxRect;
+
 	void Start () {
 		player = transform.root.GetComponent< Player >();
 		guiManager = transform.GetComponent< GUIManager >();
@@ -25,7 +31,9 @@ public class UserInput : MonoBehaviour {
 		}
 	}
 
-	private void MoveCamera() {
+
+	private void MoveCamera() 
+	{
 		float xpos = Input.mousePosition.x;
 		float ypos = Input.mousePosition.y;
 		Vector3 movement = new Vector3(0,0,0);
@@ -43,7 +51,7 @@ public class UserInput : MonoBehaviour {
     		mouseScroll = true;
 		}
  
-		//vertical camera movement
+		// vertical camera movement
 		if (ypos >= 0 && ypos < ResourceManager.ScrollWidth) {
 			movement.z -= ResourceManager.ScrollSpeed;
     		player.hud.SetCursorState(CursorState.PanDown);
@@ -54,16 +62,15 @@ public class UserInput : MonoBehaviour {
     		mouseScroll = true;
 		}
 
-		//make sure movement is in the direction the camera is pointing
-		//but ignore the vertical tilt of the camera to get sensible scrolling
-		// TODO to comment to see the difference
+		// make sure movement is in the direction the camera is pointing
+		// but ignore the vertical tilt of the camera to get sensible scrolling
 		movement = Camera.main.transform.TransformDirection(movement);
 		movement.y = 0;
 
-		//away from ground movement
+		// away from ground movement
 		movement.y -= ResourceManager.ScrollSpeed * Input.GetAxis("Mouse ScrollWheel");
 
-		//calculate desired camera position based on received input
+		// calculate desired camera position based on received input
 		Vector3 origin = Camera.main.transform.position;
 		Vector3 destination = origin;
 		destination.x += movement.x;
@@ -71,14 +78,14 @@ public class UserInput : MonoBehaviour {
 		destination.z += movement.z;
 
 
-		//limit away from ground movement to be between a minimum and maximum distance
+		// limit away from ground movement to be between a minimum and maximum distance
 		if (destination.y > ResourceManager.MaxCameraHeight) {
 			destination.y = ResourceManager.MaxCameraHeight;
 		} else if(destination.y < ResourceManager.MinCameraHeight) {
 			destination.y = ResourceManager.MinCameraHeight;
 		}
 
-		//if a change in position is detected perform the necessary update
+		// if a change in position is detected perform the necessary update
 		if (destination != origin) {
 			Camera.main.transform.position = Vector3.MoveTowards(origin, destination, Time.deltaTime * ResourceManager.ScrollSpeed);
 		}
@@ -89,18 +96,19 @@ public class UserInput : MonoBehaviour {
 
 	}
 
+
 	private void RotateCamera() {
 
 		Vector3 origin = Camera.main.transform.eulerAngles;
 		Vector3 destination = origin;
 
-		//detect rotation amount if ALT is being held and the Right mouse button is down
+		// detect rotation amount if ALT is being held and the Right mouse button is down
 		if((Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt)) && Input.GetMouseButton(1)) {
     		destination.x -= Input.GetAxis("Mouse Y") * ResourceManager.RotateAmount;
     		destination.y += Input.GetAxis("Mouse X") * ResourceManager.RotateAmount;
 		}
  
-		//if a change in position is detected perform the necessary update
+		// if a change in position is detected perform the necessary update
 		if(destination != origin) {
     		Camera.main.transform.eulerAngles = Vector3.MoveTowards(origin, destination, Time.deltaTime * ResourceManager.RotateSpeed);
 		}
@@ -108,7 +116,9 @@ public class UserInput : MonoBehaviour {
 	}
 
 
-	private void MouseActivity() {
+	private void MouseActivity() 
+	{	
+		// Handle the pressing of the left or right click
     	if ( Input.GetMouseButtonDown(0) ) {
     		LeftMouseClick();
     	} else if ( Input.GetMouseButtonDown(1) ) { 
@@ -132,12 +142,6 @@ public class UserInput : MonoBehaviour {
 
     	MouseHover();
 	}
-
-
-    private bool selectionBox;
-    private Vector3 oldMouse;
-    private Vector3 selectionStart;
-    private Rect boxRect;
 
 
     /*  Handle the left mouse click (down, not when the left button goes up ! )
@@ -202,8 +206,7 @@ public class UserInput : MonoBehaviour {
         RaycastHit hit1, hit2;
         Ray mouseRay1 = Camera.main.ScreenPointToRay(from);
         Ray mouseRay2 = Camera.main.ScreenPointToRay(to);
-        if (Physics.Raycast(mouseRay1, out hit1, 100) && Physics.Raycast(mouseRay2, out hit2, 100))
-        {
+        if (Physics.Raycast(mouseRay1, out hit1, 100) && Physics.Raycast(mouseRay2, out hit2, 100)) {
             //draw box info
             float minx = Mathf.Min(from.x, to.x);
             float miny = Mathf.Min(from.y, to.y);
@@ -212,8 +215,7 @@ public class UserInput : MonoBehaviour {
             float w = maxx - minx;
             float h = maxy - miny;
             //not double click?
-            if (w != Screen.width || h != Screen.height)
-            {
+            if (w != Screen.width || h != Screen.height) {
                 boxRect = Rect.MinMaxRect(minx, Screen.height - maxy, maxx, Screen.height - miny);
             }
             //selection
@@ -236,14 +238,15 @@ public class UserInput : MonoBehaviour {
 	private void RightMouseClick() {
 		Debug.Log("RIGHT CLICK");
 	    if (player.hud.MouseInBounds() && !Input.GetKey(KeyCode.LeftAlt) && player.selections.Count > 0  ) {
+	    	// If player is in the process of finding a location, cancel it
 	        if (player.IsFindingBuildingLocation()) {
 	            player.CancelBuildingPlacement();
 	        } else {
-
 	        	GameObject hitObject = WorkManager.FindHitObject(Input.mousePosition);
 	        	Vector3 hitPoint = WorkManager.FindHitPoint(Input.mousePosition);
 
 	        	lock (player.selections) {
+	        		// Dispatch the mouse click to all objects in the selection
 		        	foreach (WorldObject obj in player.selections) {
 		        		obj.MouseClick( hitObject, hitPoint, player );
 	        		}
@@ -254,14 +257,14 @@ public class UserInput : MonoBehaviour {
 
 
 	private void MouseHover() {
-    	if(player.hud.MouseInBounds()) {
-        	if(player.IsFindingBuildingLocation()) {
+    	if (player.hud.MouseInBounds()) {
+        	if (player.IsFindingBuildingLocation()) {
             	player.FindBuildingLocation();
         	} else {	
-    			if(player.hud.MouseInBounds()) {
+    			if (player.hud.MouseInBounds()) {
         			GameObject hoverObject = WorkManager.FindHitObject(Input.mousePosition);
         			//print(hoverObject);
-        			if(hoverObject) {
+        			if (hoverObject) {
             			if ( player.selections.Count > 0 ) 
             				// TODO put the HoverState to the most appropriate object in the list (-> priority : Attack -> collect -> move)
             				player.selections[0].SetHoverState(hoverObject);
@@ -284,6 +287,7 @@ public class UserInput : MonoBehaviour {
 
 
 	// *** Menu Methods ***
+	
 	private void OpenPauseMenu() {
 	    Time.timeScale = 0.0f;
 	    GetComponentInChildren< PauseMenu >().enabled = true;
