@@ -1,1 +1,17 @@
+# =============== #
+# Unity generated #
+# =============== #
+Temp/
+Library/
+
+
+# ===================================== #
+# Visual Studio / MonoDevelop generated #
+# ===================================== #
+*.csproj
+*.sln
+
+# ============ #
+# OS generated #
+# ============ #
 .DS_Store
