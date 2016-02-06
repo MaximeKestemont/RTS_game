@@ -14,7 +14,7 @@ public class RandomMatchmaker : Photon.PunBehaviour
  
     void OnGUI()
     {
-        GUILayout.Label(PhotonNetwork.connectionStateDetailed.ToString());
+        GUILayout.Label(PhotonNetwork.connectionStateDetailed.ToString() + " Player : " + PhotonNetwork.player.ID);
     }
 
     // TODO : this is called automatically because "Auto-join lobby" is checked. Should change that at a point.
@@ -32,13 +32,53 @@ public class RandomMatchmaker : Photon.PunBehaviour
 
 	void OnJoinedRoom()
 	{
-		Debug.Log("Current player : " + PhotonNetwork.player.ID); 
+		Debug.Log("Current player : " + PhotonNetwork.player.ID);
 
-	    Player player = GameObject.FindWithTag("Player").GetComponent<Player>();
-	 	Debug.Log("Player : " + player);   
-	    //this.Transform.parent gmonster.GetComponent<CharacterControl>();
-	    //controller.enabled = true;
-	    //CharacterCamera camera = monster.GetComponent<CharacterCamera>();
-	    //camera.enabled = true;
+		// Initialize player
+		Vector3 playerPosition = new Vector3(10, 0, 10);
+		GameObject playerObject = PhotonNetwork.Instantiate("Player", playerPosition, Quaternion.identity, 0); 
+		Player myPlayer = playerObject.GetComponent<Player>();
+		myPlayer.name = "MyNetworkPlayer" + PhotonNetwork.player.ID; // TODO must come from a GUI
+
+		// Enable the scripts related to the player
+	 	myPlayer.transform.GetComponent<UserInput>().enabled = true;
+	 	myPlayer.transform.GetComponent<GUIManager>().enabled = true;
+
+		// Get the Units object
+		Units units = playerObject.GetComponentInChildren< Units >();
+
+		// Create units
+		GameObject builder1 = PhotonNetwork.Instantiate("Builder", playerPosition, Quaternion.identity, 0);
+		builder1.transform.parent = units.transform;
+
+		GameObject tank1 = PhotonNetwork.Instantiate("Tank", playerPosition, Quaternion.identity, 0);
+		tank1.transform.parent = units.transform;
+
+
+
+
+
+
+/*
+
+		// TODO : TEST CODE, TO REMOVE 
+
+	    GameObject[] playerObjects = GameObject.FindGameObjectsWithTag("Player");
+
+	    Player player = null;
+	    // TODO dirty hack - hardcoded currently - will need to create the player dynamically, and sending a RPC to other clients to add the Player to the PlayerList.
+	    foreach (GameObject obj in playerObjects) {
+	    	if ( obj.GetComponent<Player>().name == "Player" + PhotonNetwork.player.ID) {
+	    		player = obj.GetComponent<Player>();
+	    	}
+	    }
+	   
+	 	Debug.Log("Player : " + player);
+*/
+	 	// Enable the script for the right player.
+	 	//player.transform.GetComponent<UserInput>().enabled = true;
+	 	//player.transform.GetComponent<GUIManager>().enabled = true;
+
+
 	}
 }
