@@ -32,12 +32,21 @@ public class Unit : WorldObject {
         //Get a reference to the Seeker component we added earlier
         seeker = GetComponent<Seeker>();
 
-        if (transform.root.GetComponent< Player >())
+        // TODO remove either the one from awake or from start (does not work if only in awake...)
+        if (transform.root.GetComponent< Player >()) {
+            Debug.Log("Add unit to player ");
             transform.root.GetComponent< Player >().AddUnitInList(this);
+        }
 	}
 
 	protected override void Start() {
 		base.Start();
+
+
+        if (transform.root.GetComponent< Player >()) {
+            Debug.Log("Add unit to player ");
+            transform.root.GetComponent< Player >().AddUnitInList(this);
+        }
 	}
 
 	protected override void Update () {
