@@ -53,7 +53,6 @@ public class Player : MonoBehaviour {
     			}
 			}
 		}
-		Debug.Log("Number of players : " + ResourceManager.GetPlayers().Count);
 	}
 
 	private Dictionary< ResourceType, int > InitResourceList() {
