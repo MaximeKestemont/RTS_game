@@ -147,8 +147,6 @@ public class WorldObject : MonoBehaviour {
 	public virtual void MouseClick(GameObject hitObject, Vector3 hitPoint, Player controller) {
 	    bool eraseAttackMode = true;
 
-	    Debug.Log("WORLD OBJECT");
-
 	    //only handle input if currently selected
 	    if (currentlySelected && hitObject && hitObject.name != "Ground" && hitObject.name != "Bridge") {
 	        WorldObject worldObject = hitObject.transform.parent.GetComponent< WorldObject >();
@@ -156,21 +154,19 @@ public class WorldObject : MonoBehaviour {
 	        //clicked on another selectable object
 	        if (worldObject) {
 	            Resource resource = hitObject.transform.parent.GetComponent< Resource >();
-	            Debug.Log("WORLD OBJECT 2");
 	            // If the click is on a resource deposit and resource deposit is empty, do nothing
 	            if(resource && resource.isEmpty()) {
 	            	return;
 	            } else {
 		            Player owner = hitObject.transform.root.GetComponent< Player >();
-		             Debug.Log("WORLD OBJECT 3 : " + owner);
 		            //the object is controlled by a player
 		            if (owner) { 
 		            	// this object is controlled by a human player
 		                if (player && player.human) { 
 		                    //start attack if object is not owned by the same player and this object can attack
-		                    Debug.Log("Player : " + player.username);
+		                    Debug.Log("Player : " + player.username + "/ : " + player.name);
 		                    Debug.Log("Target : " + owner.username);
-		                    if (player.username != owner.username && CanAttack()) {
+		                    if ( (player.username != owner.username || player.name != owner.username) && CanAttack()) {
 		                    	eraseAttackMode = false;
 		                    	BeginAttack(worldObject);
 		                    } 

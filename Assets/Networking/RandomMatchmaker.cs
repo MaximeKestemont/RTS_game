@@ -33,12 +33,19 @@ public class RandomMatchmaker : Photon.PunBehaviour
 	void OnJoinedRoom()
 	{
 		Debug.Log("Current player : " + PhotonNetwork.player.ID);
+		int playerID = PhotonNetwork.player.ID;
 
 		// Initialize player
 		Vector3 playerPosition = new Vector3(10, 0, 10);
 		GameObject playerObject = PhotonNetwork.Instantiate("Player", playerPosition, Quaternion.identity, 0); 
 		Player myPlayer = playerObject.GetComponent<Player>();
-		myPlayer.name = "MyNetworkPlayer" + PhotonNetwork.player.ID; // TODO must come from a GUI
+		myPlayer.name = "MyNetworkPlayer" + playerID; // TODO must come from a GUI
+
+		// Update name of children
+		playerObject.GetComponentInChildren<Units>().name += playerID;
+		playerObject.GetComponentInChildren<Buildings>().name += playerID;
+		playerObject.GetComponentInChildren<RallyPoint>().name += playerID;
+
 
 		// Enable the scripts related to the player
 	 	myPlayer.transform.GetComponent<UserInput>().enabled = true;
@@ -49,13 +56,18 @@ public class RandomMatchmaker : Photon.PunBehaviour
 
 		// Create units
 		GameObject builder1 = PhotonNetwork.Instantiate("Builder", playerPosition, Quaternion.identity, 0);
+		builder1.name += playerID;
 		builder1.transform.parent = units.transform;
 
 		GameObject tank1 = PhotonNetwork.Instantiate("Tank", playerPosition, Quaternion.identity, 0);
+		tank1.name += playerID;
 		tank1.transform.parent = units.transform;
 
-
-
+		/*
+		tank1.name = tank1.GetInstanceID().ToString();
+		Debug.Log("Instance ID  : " + tank1.GetInstanceID());
+        Debug.Log("Ovject : " + GameObject.Find(tank1.GetInstanceID().ToString()) );
+	*/
 
 
 
