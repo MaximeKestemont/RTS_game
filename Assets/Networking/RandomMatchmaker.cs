@@ -41,6 +41,7 @@ public class RandomMatchmaker : Photon.PunBehaviour
 		Player myPlayer = playerObject.GetComponent<Player>();
 		myPlayer.name = "MyNetworkPlayer" + playerID; // TODO must come from a GUI
 
+
 		// Update name of children
 		playerObject.GetComponentInChildren<Units>().name += playerID;
 		playerObject.GetComponentInChildren<Buildings>().name += playerID;
@@ -54,13 +55,16 @@ public class RandomMatchmaker : Photon.PunBehaviour
 		// Get the Units object
 		Units units = playerObject.GetComponentInChildren< Units >();
 
-		// Create units
-		GameObject builder1 = PhotonNetwork.Instantiate("Builder", playerPosition, Quaternion.identity, 0);
-		builder1.name += playerID;
+		// Create units (and sending the name of the parent for those units)
+		object[] data = new object[1];
+		data[0] = units.name;			// parent name
+
+		GameObject builder1 = PhotonNetwork.Instantiate("Builder", playerPosition, Quaternion.identity, 0, data);
+		builder1.name = "Builder" + playerID;
 		builder1.transform.parent = units.transform;
 
-		GameObject tank1 = PhotonNetwork.Instantiate("Tank", playerPosition, Quaternion.identity, 0);
-		tank1.name += playerID;
+		GameObject tank1 = PhotonNetwork.Instantiate("Tank", playerPosition, Quaternion.identity, 0, data);
+		tank1.name = "Tank" + playerID;
 		tank1.transform.parent = units.transform;
 
 		/*
@@ -68,28 +72,6 @@ public class RandomMatchmaker : Photon.PunBehaviour
 		Debug.Log("Instance ID  : " + tank1.GetInstanceID());
         Debug.Log("Ovject : " + GameObject.Find(tank1.GetInstanceID().ToString()) );
 	*/
-
-
-
-/*
-
-		// TODO : TEST CODE, TO REMOVE 
-
-	    GameObject[] playerObjects = GameObject.FindGameObjectsWithTag("Player");
-
-	    Player player = null;
-	    // TODO dirty hack - hardcoded currently - will need to create the player dynamically, and sending a RPC to other clients to add the Player to the PlayerList.
-	    foreach (GameObject obj in playerObjects) {
-	    	if ( obj.GetComponent<Player>().name == "Player" + PhotonNetwork.player.ID) {
-	    		player = obj.GetComponent<Player>();
-	    	}
-	    }
-	   
-	 	Debug.Log("Player : " + player);
-*/
-	 	// Enable the script for the right player.
-	 	//player.transform.GetComponent<UserInput>().enabled = true;
-	 	//player.transform.GetComponent<GUIManager>().enabled = true;
 
 
 	}

@@ -10,6 +10,10 @@ public class NetworkCharacter : Photon.MonoBehaviour
     private string parentName = "";
     private string name;
  
+    void Start()
+    {
+    }
+
     // Update is called once per frame
     void Update()
     {
@@ -17,11 +21,9 @@ public class NetworkCharacter : Photon.MonoBehaviour
             transform.position = Vector3.Lerp(transform.position, this.correctPlayerPos, Time.deltaTime * 5);
             transform.rotation = Quaternion.Lerp(transform.rotation, this.correctPlayerRot, Time.deltaTime * 5);
             transform.name = name;
-            //Debug.Log("Object : " + this);
-            //Debug.Log("Name : " + transform.name);
 
-            if (parentName != "") {
-            	//Debug.Log("Parent name : " + parentName);
+            // If the parent name is not yet set, set it // TODO move this method in Start (but it crash...)
+            if (parentName != "" && transform.parent == null ) {
             	if (GameObject.Find(parentName)) transform.parent = GameObject.Find(parentName).transform;
             }
         }
@@ -33,25 +35,24 @@ public class NetworkCharacter : Photon.MonoBehaviour
             // We own this player: send the others our data
             stream.SendNext(transform.position);
             stream.SendNext(transform.rotation);
-           
-            //Debug.Log("Instance ID  : " + this.GetInstanceID());
-            //Debug.Log("Ovject : " + GameObject.Find(this.GetInstanceID().ToString()) );
-            // If no parent, send an empty string
-            if (transform.parent) {
-            	stream.SendNext(transform.parent.name);
-        	} else {
-        		stream.SendNext("");
-        	}
-
-        	stream.SendNext(transform.name);
+        	stream.SendNext(transform.name);			// TODO sent it in the data during the Instantiation
  		
  		} else {
         
             // Network player, receive data
             this.correctPlayerPos = (Vector3)stream.ReceiveNext();
             this.correctPlayerRot = (Quaternion)stream.ReceiveNext();
-            this.parentName = (string)stream.ReceiveNext();
             this.name = (string)stream.ReceiveNext();
         }
+    }
+
+    // Method to get data from the Instantiation of the object
+    void OnPhotonInstantiate(PhotonMessageInfo info) {
+    	object[] data = this.gameObject.GetPhotonView().instantiationData;
+
+    	// If only one element, then it is the parent element
+    	if (data != null && data.Length == 1) {
+    		this.parentName = (string)data[0];
+    	}
     }
 }
