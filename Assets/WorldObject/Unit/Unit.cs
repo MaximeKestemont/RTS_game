@@ -23,6 +23,9 @@ public class Unit : WorldObject {
     public AudioClip moveSound;
     public float moveVolume = 1.0f;
 
+    // Variable to know if the position has changed or not (only relevant in multiplayer mode)
+    private Vector3 oldPosition = new Vector3(0, 0, 0); 
+
 
 	/*** Game Engine methods, all can be overridden by subclass ***/
 
@@ -56,6 +59,12 @@ public class Unit : WorldObject {
     		TurnToTarget();
     	else if (moving) 
     		MakeMove();
+        // Check if the position has changed. If it has, update the bounds.
+        // Necessary for the multiplayer, as the position is synced, but not the bounds.
+        else if (oldPosition != transform.position) {
+            oldPosition = transform.position;
+            CalculateBounds();
+        }
 	}
 
 	protected override void OnGUI() {

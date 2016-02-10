@@ -3,8 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 
 using RTS;
+using Photon;
 
-public class WorldObject : MonoBehaviour {
+public class WorldObject : Photon.MonoBehaviour {
 
 	public string objectName;	// TODO currently not unique - may cause a problem later on
 	public Texture2D buildImage;
@@ -38,10 +39,16 @@ public class WorldObject : MonoBehaviour {
 	public float attackVolume = 1.0f, selectVolume = 1.0f, useWeaponVolume = 1.0f;
 	protected AudioElement audioElement;
 
+	// Network related variables
+	public PhotonView myPhotonView;
+
 
 	protected virtual void Awake() {
 		selectionBounds = ResourceManager.InvalidBounds;
 		CalculateBounds();
+
+		// Get back  the network view, to be able to call RPC method on it
+		myPhotonView = this.GetComponent<PhotonView>();
 	}
  
 	protected virtual void Start () {
@@ -79,7 +86,6 @@ public class WorldObject : MonoBehaviour {
     protected virtual void AnimationUpdate() {
         // to specifiy in children
     }
-
 
 	public virtual void SetSelection(bool selected, Rect playingArea) {
     	currentlySelected = selected;
@@ -400,6 +406,7 @@ public class WorldObject : MonoBehaviour {
 	    //this behaviour needs to be specified by a specific object
 	}
 
+	[PunRPC]
 	public void TakeDamage(int damage) {
 	    hitPoints -= damage;
 	    if ( hitPoints <= 0 ) {
@@ -407,6 +414,7 @@ public class WorldObject : MonoBehaviour {
 	    	Destroy(gameObject);
 	    }
 	}
+
 
 	// Initialise the audio settings by creating the audio element containing the audio objects (containing the audio clip).
 	protected virtual void InitialiseAudio() {

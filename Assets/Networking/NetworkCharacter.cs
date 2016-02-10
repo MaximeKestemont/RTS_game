@@ -6,7 +6,7 @@ using Photon;
 public class NetworkCharacter : Photon.MonoBehaviour
 {
     private Vector3 correctPlayerPos;
-    private Quaternion correctPlayerRot;
+    private Quaternion correctPlayerRot = new Quaternion(0, 0, 0, 1);
     private string parentName = "";
     private string name;
  
@@ -16,8 +16,11 @@ public class NetworkCharacter : Photon.MonoBehaviour
 
     // Update is called once per frame
     void Update()
-    {
+    {	
+    	Debug.Log("My view :" + PhotonView.Get(this));
+    	Debug.Log("PhotonView : " + photonView.ownerId);
         if (!photonView.isMine) {
+        	Debug.Log("HEREEEE");
             transform.position = Vector3.Lerp(transform.position, this.correctPlayerPos, Time.deltaTime * 5);
             transform.rotation = Quaternion.Lerp(transform.rotation, this.correctPlayerRot, Time.deltaTime * 5);
             transform.name = name;
@@ -36,6 +39,7 @@ public class NetworkCharacter : Photon.MonoBehaviour
             stream.SendNext(transform.position);
             stream.SendNext(transform.rotation);
         	stream.SendNext(transform.name);			// TODO sent it in the data during the Instantiation
+
  		
  		} else {
         

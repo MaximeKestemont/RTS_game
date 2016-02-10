@@ -38,6 +38,9 @@ public class Projectile : MonoBehaviour {
  
  	// Note : Only detect if the target was hit ! This means that if another object is in the way, it will NOT hit it (which is intended, even if not realistic)
     private bool HitSomething() {
+        //if (target) {Debug.Log("Target : " + target.name + " / Position : " + target.transform.position);
+        //Debug.Log("Target bounds : " + target.GetSelectionBounds());}
+        //Debug.Log("Position projectile : " + this.transform.position);
         if (target && target.GetSelectionBounds().Contains(transform.position)) {
         	return true;
         } else {
@@ -47,7 +50,8 @@ public class Projectile : MonoBehaviour {
  
     private void InflictDamage() {
         if (target) {
-        	target.TakeDamage(damage);
+            target.myPhotonView.RPC("TakeDamage", PhotonTargets.All, damage);
+        	//target.TakeDamage(damage);
         }
     }
 }
