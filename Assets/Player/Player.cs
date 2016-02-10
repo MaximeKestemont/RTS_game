@@ -23,6 +23,7 @@ public class Player : MonoBehaviour {
 	private Unit tempCreator;
 	private bool findingPlacement = false;
 
+
 	// Use this for initialization
 	void Start () {
 		hud = GetComponentInChildren< HUD >();
@@ -53,7 +54,6 @@ public class Player : MonoBehaviour {
     			}
 			}
 		}
-		Debug.Log("Number of players : " + ResourceManager.GetPlayers().Count);
 	}
 
 	private Dictionary< ResourceType, int > InitResourceList() {
@@ -101,6 +101,8 @@ public class Player : MonoBehaviour {
     {
         ResetSelection();
         
+        Debug.Log("Box selection : " + unitsList.Count);
+        Debug.Log("Player name : " + name);
         for ( int i = 0 ; i < unitsList.Count ; ++i ) {
         	Unit u = unitsList[i];
             

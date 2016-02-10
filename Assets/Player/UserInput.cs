@@ -247,6 +247,7 @@ public class UserInput : MonoBehaviour {
 
 	        	lock (player.selections) {
 	        		// Dispatch the mouse click to all objects in the selection
+	        		Debug.Log("Dispatch commands");
 		        	foreach (WorldObject obj in player.selections) {
 		        		obj.MouseClick( hitObject, hitPoint, player );
 	        		}
