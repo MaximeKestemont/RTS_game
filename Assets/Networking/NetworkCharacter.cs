@@ -17,10 +17,7 @@ public class NetworkCharacter : Photon.MonoBehaviour
     // Update is called once per frame
     void Update()
     {	
-    	Debug.Log("My view :" + PhotonView.Get(this));
-    	Debug.Log("PhotonView : " + photonView.ownerId);
         if (!photonView.isMine) {
-        	Debug.Log("HEREEEE");
             transform.position = Vector3.Lerp(transform.position, this.correctPlayerPos, Time.deltaTime * 5);
             transform.rotation = Quaternion.Lerp(transform.rotation, this.correctPlayerRot, Time.deltaTime * 5);
             transform.name = name;

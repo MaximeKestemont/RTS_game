@@ -2,6 +2,8 @@
 using Photon;
 using RTS;
  
+
+// Class to spawn in a specific scene, with players and units already created through the Unity Editor
 public class SpecificMatchMaker : Photon.PunBehaviour
 {
     // Use this for initialization
@@ -35,43 +37,7 @@ public class SpecificMatchMaker : Photon.PunBehaviour
 		Debug.Log("Current player : " + PhotonNetwork.player.ID);
 		int playerID = PhotonNetwork.player.ID;
 
-		// Initialize player
-		Vector3 playerPosition = new Vector3(10, 0, 10);
-		GameObject playerObject = PhotonNetwork.Instantiate("Player", playerPosition, Quaternion.identity, 0); 
-		Player myPlayer = playerObject.GetComponent<Player>();
-		myPlayer.name = "MyNetworkPlayer" + playerID; // TODO must come from a GUI
 
-
-		// Update name of children
-		playerObject.GetComponentInChildren<Units>().name += playerID;
-		playerObject.GetComponentInChildren<Buildings>().name += playerID;
-		playerObject.GetComponentInChildren<RallyPoint>().name += playerID;
-
-
-		// Enable the scripts related to the player
-	 	myPlayer.transform.GetComponent<UserInput>().enabled = true;
-	 	myPlayer.transform.GetComponent<GUIManager>().enabled = true;
-
-		// Get the Units object
-		Units units = playerObject.GetComponentInChildren< Units >();
-
-		// Create units (and sending the name of the parent for those units)
-		object[] data = new object[1];
-		data[0] = units.name;			// parent name
-
-		GameObject builder1 = PhotonNetwork.Instantiate("Builder", playerPosition, Quaternion.identity, 0, data);
-		builder1.name = "Builder" + playerID;
-		builder1.transform.parent = units.transform;
-
-		GameObject tank1 = PhotonNetwork.Instantiate("Tank", playerPosition, Quaternion.identity, 0, data);
-		tank1.name = "Tank" + playerID;
-		tank1.transform.parent = units.transform;
-
-		/*
-		tank1.name = tank1.GetInstanceID().ToString();
-		Debug.Log("Instance ID  : " + tank1.GetInstanceID());
-        Debug.Log("Ovject : " + GameObject.Find(tank1.GetInstanceID().ToString()) );
-	*/
 
 
 	}
