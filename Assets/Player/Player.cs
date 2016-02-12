@@ -48,8 +48,10 @@ public class Player : MonoBehaviour {
 	 	return playerObject;
 	}
 
+	/*** ------------------------------------------------------ ***/
+	/*** Game Engine methods, all can be overridden by subclass ***/
+	/*** ------------------------------------------------------ ***/
 
-	// Use this for initialization
 	void Start () {
 		hud = GetComponentInChildren< HUD >();
 		
@@ -64,7 +66,6 @@ public class Player : MonoBehaviour {
     	ResourceManager.AddPlayer(this);
 	}
 	
-	// Update is called once per frame
 	void Update () {
 		if ( human ) {
     		hud.SetResourceValues(resources, resourceLimits);
@@ -81,6 +82,19 @@ public class Player : MonoBehaviour {
 		}
 	}
 
+
+	/*** ------------------------------------------------------ ***/
+
+	public void AddUnitInList(Unit unit) {
+    	unitsList.Add(unit);
+    }
+
+    public List<Unit> GetUnitList() {
+    	return unitsList;
+    }
+
+
+	// Initialize the resource list of the player
 	private Dictionary< ResourceType, int > InitResourceList() {
     	Dictionary< ResourceType, int > list = new Dictionary< ResourceType, int >();
     	list.Add(ResourceType.Money, 0);
@@ -102,7 +116,10 @@ public class Player : MonoBehaviour {
 		resources[type] += amount;
 	}
 
-	public void AddUnit(string unitName, Vector3 spawnPoint, Vector3 rallyPoint, Quaternion rotation, Building creator) {
+
+	// Method to add a new unit to the player.
+	public void AddUnit(string unitName, Vector3 spawnPoint, Vector3 rallyPoint, Quaternion rotation, Building creator) 
+	{
     	Debug.Log ("add " + unitName + " to player");
 
 		GameObject newUnit = (GameObject)Instantiate(ResourceManager.GetUnit(unitName), spawnPoint, rotation);
@@ -120,23 +137,23 @@ public class Player : MonoBehaviour {
     	}
 
 	}
-    
 
+
+	/*** 			SELECTION METHODS 			***/
+    
+	// Method to create a box selection, and add the units inside the box to the player selection
     public void BoxSelection(Vector3 from, Vector3 to)
     {
         ResetSelection();
         
-        Debug.Log("Box selection : " + unitsList.Count);
-        Debug.Log("Player name : " + name);
         for ( int i = 0 ; i < unitsList.Count ; ++i ) {
         	Unit u = unitsList[i];
             
             if (((u.GetPosition().x > from.x && u.GetPosition().x < to.x) || (u.GetPosition().x < from.x && u.GetPosition().x > to.x)) &&
                ((u.GetPosition().z > from.z && u.GetPosition().z < to.z) || (u.GetPosition().z < from.z && u.GetPosition().z > to.z)))
-            {
+   			{
                 AddSelection(u);   
             }
-
         }
     }
 
@@ -161,19 +178,9 @@ public class Player : MonoBehaviour {
     }
 
 
-    public void AddUnitInList(Unit unit) {
-    	unitsList.Add(unit);
-    }
-
-    public List<Unit> GetUnitList() {
-    	return unitsList;
-    }
 
 
-
-
-	// *** BUILDING METHODS *** //
-
+	/*** 			BUILDING METHODS 			***/
 
 	public void CreateBuilding(string buildingName, Vector3 buildPoint, Unit creator, Rect playingArea) {
 		
@@ -182,8 +189,8 @@ public class Player : MonoBehaviour {
 			Destroy(tempBuilding.gameObject);
 		}
 
-    	GameObject newBuilding = Building.InstantiateBuilding(this.gameObject, buildingName, buildPoint, Quaternion.identity);
-
+		GameObject newBuilding = (GameObject)Instantiate(ResourceManager.GetBuilding(buildingName), buildPoint, new Quaternion());
+    	
     	// Create a ghost building to show the player where the placement will be    	
     	tempBuilding = newBuilding.GetComponent< Building >();
     	if (tempBuilding) {
@@ -203,7 +210,6 @@ public class Player : MonoBehaviour {
  
 	public void FindBuildingLocation() {
     	Vector3 newLocation = WorkManager.FindHitPoint(Input.mousePosition);
-    	//newLocation.y = 0;
     	tempBuilding.transform.position = newLocation;
 	}
 
@@ -253,7 +259,16 @@ public class Player : MonoBehaviour {
 	{
 	    // Stop the placement mode
 	    findingPlacement = false;
+
+	    // Create the real building
+	    Debug.Log("Name : " + tempBuilding.name);
+	    GameObject newBuilding = Building.InstantiateBuilding(this.gameObject, tempBuilding.objectName, tempBuilding.transform.position, tempBuilding.transform.rotation);
+
+		// Destroy the temp building
+		Destroy(tempBuilding.gameObject);
 	    
+		tempBuilding = newBuilding.GetComponent< Building >();
+
 	    // Place the building
 	    Buildings buildings = GetComponentInChildren< Buildings >();
 	    if (buildings) {

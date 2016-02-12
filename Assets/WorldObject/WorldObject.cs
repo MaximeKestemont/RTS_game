@@ -254,6 +254,7 @@ public class WorldObject : Photon.MonoBehaviour {
 	}
 
 	// Set the heathstyle background to healthy/damaged/critical, depending on the current health of the object
+	//[PunRPC]
 	protected virtual void CalculateCurrentHealth(float lowSplit, float highSplit) {
 	    healthPercentage = (float)hitPoints / (float)maxHitPoints;
 	    if ( healthPercentage > highSplit ) {

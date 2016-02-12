@@ -55,6 +55,7 @@ public class RandomMatchmaker : Photon.PunBehaviour
 		GameObject playerObject = Player.InstantiatePlayer(playerPosition);
 		Unit.InstantiateUnit(playerObject, "Builder", new Vector3(playerPosition.x + 2, playerPosition.y, playerPosition.z), Quaternion.identity);
 		Unit.InstantiateUnit(playerObject, "Tank", playerPosition, Quaternion.identity);
+		Building.InstantiateBuilding(playerObject, "Refinery",  new Vector3(playerPosition.x + 5, playerPosition.y, playerPosition.z), Quaternion.identity);
 
 
 	}
