@@ -19,11 +19,42 @@ public class Building : WorldObject {
     public AudioClip finishedJobSound;
     public float finishedJobVolume = 1.0f;
 
+    // Dirty flag to update only once the bounds, as we need to update the bounds when the object has been created by another player
+    // and is received through the network (only the position is passed, not the bounds)
+    private bool dirtyFlag = true;
+
+
+    // Method to initialize the building, make the name corresponding to the player and sending the parent object name to the network
+    // so that other players can re-create the object hierarchy
+    public static GameObject InstantiateBuilding(GameObject playerObject, string prefabName, Vector3 buildingPosition, Quaternion buildingQuaternion) 
+    {
+        int playerID = PhotonNetwork.player.ID;
+
+        // Get the Units object
+        Buildings buildings = playerObject.GetComponentInChildren< Buildings >();
+
+        // Store the name of the parent 
+        object[] data = new object[1];
+        data[0] = buildings.name;           // parent name
+
+        // Create the unit, and send the parent name so that it can be retrieved from other player views to re-build the hierarchy
+        GameObject buildingObject = PhotonNetwork.Instantiate(prefabName, buildingPosition, buildingQuaternion, 0, data);
+        
+        // Modify the name so that it is unique (corresponding to the playerID)
+        buildingObject.name = prefabName + playerID;
+        buildingObject.transform.parent = buildings.transform;
+
+        return buildingObject;
+    }
+
+
 	protected override void Awake() {
     	base.Awake();
 
     	buildQueue = new Queue< string >();
         SetSpawnPoint();
+
+        CalculateBounds();
 	}
  
 	protected override void Start () {
@@ -34,6 +65,15 @@ public class Building : WorldObject {
   	  	base.Update();
 
   	  	ProcessBuildQueue();
+
+
+        if ( dirtyFlag ) {
+            dirtyFlag = false;
+            CalculateBounds();
+        }
+
+        CalculateBounds();
+        
 	}
 
 	public override void SetSelection(bool selected, Rect playingArea) {

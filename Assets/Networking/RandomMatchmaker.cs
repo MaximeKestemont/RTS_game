@@ -33,46 +33,30 @@ public class RandomMatchmaker : Photon.PunBehaviour
 	void OnJoinedRoom()
 	{
 		Debug.Log("Current player : " + PhotonNetwork.player.ID);
-		int playerID = PhotonNetwork.player.ID;
-
-		// Initialize player
+		
 		Vector3 playerPosition = new Vector3(10, 0, 10);
-		GameObject playerObject = PhotonNetwork.Instantiate("Player", playerPosition, Quaternion.identity, 0); 
-		Player myPlayer = playerObject.GetComponent<Player>();
-		myPlayer.name = "MyNetworkPlayer" + playerID; // TODO must come from a GUI
+
+		// TODO to move in the future lobby script
+		// Starting position for each player
+		switch (PhotonNetwork.player.ID) {
+			case 1:
+				playerPosition.x = 20;
+				break;
+			case 2: 
+				playerPosition.x = 10;
+				playerPosition.z = 20;
+				break;
+			default :
+				break;
+		}
 
 
-		// Update name of children
-		playerObject.GetComponentInChildren<Units>().name += playerID;
-		playerObject.GetComponentInChildren<Buildings>().name += playerID;
-		playerObject.GetComponentInChildren<RallyPoint>().name += playerID;
-
-
-		// Enable the scripts related to the player
-	 	myPlayer.transform.GetComponent<UserInput>().enabled = true;
-	 	myPlayer.transform.GetComponent<GUIManager>().enabled = true;
-
-		// Get the Units object
-		Units units = playerObject.GetComponentInChildren< Units >();
-
-		// Create units (and sending the name of the parent for those units)
-		object[] data = new object[1];
-		data[0] = units.name;			// parent name
-
-		GameObject builder1 = PhotonNetwork.Instantiate("Builder", playerPosition, Quaternion.identity, 0, data);
-		builder1.name = "Builder" + playerID;
-		builder1.transform.parent = units.transform;
-
-		GameObject tank1 = PhotonNetwork.Instantiate("Tank", playerPosition, Quaternion.identity, 0, data);
-		tank1.name = "Tank" + playerID;
-		tank1.transform.parent = units.transform;
-
-		/*
-		tank1.name = tank1.GetInstanceID().ToString();
-		Debug.Log("Instance ID  : " + tank1.GetInstanceID());
-        Debug.Log("Ovject : " + GameObject.Find(tank1.GetInstanceID().ToString()) );
-	*/
+		// Creation of the player + 2 units
+		GameObject playerObject = Player.InstantiatePlayer(playerPosition);
+		Unit.InstantiateUnit(playerObject, "Builder", new Vector3(playerPosition.x + 2, playerPosition.y, playerPosition.z), Quaternion.identity);
+		Unit.InstantiateUnit(playerObject, "Tank", playerPosition, Quaternion.identity);
 
 
 	}
+
 }

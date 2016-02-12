@@ -24,6 +24,31 @@ public class Player : MonoBehaviour {
 	private bool findingPlacement = false;
 
 
+	// Method to initialize the player
+	public static GameObject InstantiatePlayer(Vector3 playerPosition) 
+	{
+		int playerID = PhotonNetwork.player.ID;
+
+		GameObject playerObject = PhotonNetwork.Instantiate("Player", playerPosition, Quaternion.identity, 0); 
+		Player myPlayer = playerObject.GetComponent<Player>();
+		myPlayer.name = "MyNetworkPlayer" + PhotonNetwork.player.ID; // TODO must come from a GUI
+		myPlayer.username = "MyNetworkPlayer" + PhotonNetwork.player.ID;	// TODO when checking if the owner is the same, must either check the userName, or the name. Not both
+
+
+		// Update name of children to be specific to this player and unique (so that it can be retrieve with a Find)
+		playerObject.GetComponentInChildren<Units>().name += playerID;
+		playerObject.GetComponentInChildren<Buildings>().name += playerID;
+		playerObject.GetComponentInChildren<RallyPoint>().name += playerID;
+
+
+		// Enable the scripts related to the player
+	 	myPlayer.transform.GetComponent<UserInput>().enabled = true;
+	 	myPlayer.transform.GetComponent<GUIManager>().enabled = true;
+
+	 	return playerObject;
+	}
+
+
 	// Use this for initialization
 	void Start () {
 		hud = GetComponentInChildren< HUD >();
@@ -129,6 +154,12 @@ public class Player : MonoBehaviour {
         selections.Clear();
     }
 
+    public List<WorldObject> GetSelection() { return selections; }
+
+    public void RemoveFromSelection(WorldObject obj) {
+    	selections.Remove(obj);
+    }
+
 
     public void AddUnitInList(Unit unit) {
     	unitsList.Add(unit);
@@ -151,9 +182,10 @@ public class Player : MonoBehaviour {
 			Destroy(tempBuilding.gameObject);
 		}
 
-    	GameObject newBuilding = (GameObject)Instantiate(ResourceManager.GetBuilding(buildingName), buildPoint, new Quaternion());
+    	GameObject newBuilding = Building.InstantiateBuilding(this.gameObject, buildingName, buildPoint, Quaternion.identity);
+
+    	// Create a ghost building to show the player where the placement will be    	
     	tempBuilding = newBuilding.GetComponent< Building >();
-    	// Create a ghost building to show the player where the placement will be
     	if (tempBuilding) {
         	tempCreator = creator;
         	findingPlacement = true;
@@ -161,7 +193,7 @@ public class Player : MonoBehaviour {
         	tempBuilding.SetColliders(false);
         	tempBuilding.SetPlayingArea(playingArea);
    	 	} else {
-   	 		Destroy(newBuilding);
+   	 		WorldObject.RPCDestroy(newBuilding);
    	 	}
 	}
 
@@ -243,7 +275,7 @@ public class Player : MonoBehaviour {
 	public void CancelBuildingPlacement() 
 	{
 	    findingPlacement = false;
-	    Destroy(tempBuilding.gameObject);
+	    WorldObject.RPCDestroy(tempBuilding.gameObject);
 	    tempBuilding = null;
 	    tempCreator = null;
 	}

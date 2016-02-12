@@ -411,8 +411,19 @@ public class WorldObject : Photon.MonoBehaviour {
 	    hitPoints -= damage;
 	    if ( hitPoints <= 0 ) {
 	    	// TODO animation for the object being destroyed
+
+	    	// Remove object from the selections of every player
+	    	foreach ( Player player in ResourceManager.GetPlayers() ) {
+	    		player.RemoveFromSelection(this);
+	    	}
 	    	Destroy(gameObject);
 	    }
+	}
+
+	// Method to destroy an object on every Player 	// TODO move to another place
+	[PunRPC]
+	public static void RPCDestroy(GameObject obj) {
+		Destroy(obj);
 	}
 
 

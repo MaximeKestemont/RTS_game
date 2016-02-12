@@ -27,6 +27,26 @@ public class Unit : WorldObject {
     private Vector3 oldPosition = new Vector3(0, 0, 0); 
 
 
+    // Method to initialize the unit, make the name corresponding to the player and sending the parent object name to the network
+    // so that other players can re-create the object hierarchy
+    public static void InstantiateUnit(GameObject playerObject, string prefabName, Vector3 unitPosition, Quaternion unitQuaternion) 
+    {
+        int playerID = PhotonNetwork.player.ID;
+
+        // Get the Units object
+        Units units = playerObject.GetComponentInChildren< Units >();
+
+        // Store the name of the parent 
+        object[] data = new object[1];
+        data[0] = units.name;           // parent name
+
+        // Create the unit, and send the parent name so that it can be retrieved from other player views to re-build the hierarchy
+        GameObject unitObject = PhotonNetwork.Instantiate(prefabName, unitPosition, unitQuaternion, 0, data);
+        unitObject.name = prefabName + playerID;
+        unitObject.transform.parent = units.transform;
+    }
+
+
 	/*** Game Engine methods, all can be overridden by subclass ***/
 
 	protected override void Awake() {
