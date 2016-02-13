@@ -224,7 +224,9 @@ public class WorldObject : Photon.MonoBehaviour {
 
 	protected virtual void DrawSelectionBox(Rect selectBox) {
 	    GUI.Box(selectBox, "");
-	    myPhotonView.RPC("CalculateCurrentHealth", PhotonTargets.All, 0.35f, 0.65f); //CalculateCurrentHealth(0.35f, 0.65f);
+	    
+	    // No RPC call here - we dont want each player to calculate the health for each selection
+	    CalculateCurrentHealth(0.35f, 0.65f);
 	    DrawHealthBar(selectBox, "");
 	}
 
