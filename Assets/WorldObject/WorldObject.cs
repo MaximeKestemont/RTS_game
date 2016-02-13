@@ -18,7 +18,7 @@ public class WorldObject : Photon.MonoBehaviour {
 
 	protected Player player;
 	protected string[] actions = {};
-	protected bool currentlySelected = false;
+	public bool currentlySelected = false;
 	protected Bounds selectionBounds;
 	protected Rect playingArea = new Rect(0.0f, 0.0f, 0.0f, 0.0f);
 	
@@ -79,6 +79,7 @@ public class WorldObject : Photon.MonoBehaviour {
 	}
  
 	protected virtual void OnGUI() {
+		//if (this.name == "Refinery1" ) Debug.Log("Selected ? " + currentlySelected);
 		if (currentlySelected) DrawSelection();
 	}
 
@@ -89,10 +90,13 @@ public class WorldObject : Photon.MonoBehaviour {
 
 	public virtual void SetSelection(bool selected, Rect playingArea) {
     	currentlySelected = selected;
+    	
+    	// Add the object to the player selection
+    	player.selections.Add(this);
     	if (selected) {
-    		if (audioElement != null) 
-    			audioElement.Play(selectSound);
+    		Debug.Log("" + this.name + " selected !");
     		this.playingArea = playingArea;
+    		if (audioElement != null) audioElement.Play(selectSound);
     	}
 	}
 
@@ -223,7 +227,7 @@ public class WorldObject : Photon.MonoBehaviour {
 
 	protected virtual void DrawSelectionBox(Rect selectBox) {
 	    GUI.Box(selectBox, "");
-	    CalculateCurrentHealth(0.35f, 0.65f);
+	    myPhotonView.RPC("CalculateCurrentHealth", PhotonTargets.All, 0.35f, 0.65f); //CalculateCurrentHealth(0.35f, 0.65f);
 	    DrawHealthBar(selectBox, "");
 	}
 
@@ -254,7 +258,7 @@ public class WorldObject : Photon.MonoBehaviour {
 	}
 
 	// Set the heathstyle background to healthy/damaged/critical, depending on the current health of the object
-	//[PunRPC]
+	[PunRPC]
 	protected virtual void CalculateCurrentHealth(float lowSplit, float highSplit) {
 	    healthPercentage = (float)hitPoints / (float)maxHitPoints;
 	    if ( healthPercentage > highSplit ) {
@@ -309,7 +313,8 @@ public class WorldObject : Photon.MonoBehaviour {
 	}
 
 
-	// *** Attack methods *** 
+
+	/*** 				Attack methods 				***/ 
 
 	public virtual bool CanAttack() {
     	//default behaviour needs to be overidden by children

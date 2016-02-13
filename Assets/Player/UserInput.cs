@@ -116,6 +116,10 @@ public class UserInput : MonoBehaviour {
 	}
 
 
+	private float delta = 0.5f;
+	// TODO implement a method to compare 2 vectors, to se if they are almost equal (with a small delta)
+
+
 	private void MouseActivity() 
 	{	
 		// Handle the pressing of the left or right click
@@ -129,18 +133,20 @@ public class UserInput : MonoBehaviour {
     	if (Input.GetMouseButtonUp(0)) {
 		    selectionBox = false;
 		    boxRect = Rect.MinMaxRect(0, 0, 0, 0);
+
 		}
 
-
-		if (selectionBox && oldMouse != Input.mousePosition) {
+		if ( selectionBox && oldMouse != Input.mousePosition ) {
 		    UpdateBoxSelection(selectionStart, Input.mousePosition);
 		}
 		oldMouse = Input.mousePosition;
 
-		//draw box
+		// update the selection box value
         guiManager.setSelectionBox(selectionBox, boxRect);
 
     	MouseHover();
+
+    	Debug.Log("End of Mouse activity : " + player.selections + " / Size : " + player.selections.Count);
 	}
 
 
@@ -181,8 +187,9 @@ public class UserInput : MonoBehaviour {
 	                	WorldObject worldObject = hitObject.transform.parent.GetComponent< WorldObject >();	
 	                	if (worldObject) {
 	                    	// we already know the player has no selected object
-	                    	player.selections.Add(worldObject);
+	                    	Debug.Log("Player selection, adding : " + worldObject.name);
 	                    	worldObject.SetSelection(true, player.hud.GetPlayingArea());
+	                    	Debug.Log("Player actual selection : " + player.selections.Count);
 	                	}	
 	            	} else {
 	            		// TODO put here the selection box start?

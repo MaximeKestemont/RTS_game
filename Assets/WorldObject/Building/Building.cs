@@ -59,6 +59,11 @@ public class Building : WorldObject {
  
 	protected override void Start () {
     	base.Start();
+
+        if (transform.root.GetComponent< Player >()) {
+            Debug.Log("Add building to player ");
+            transform.root.GetComponent< Player >().AddBuildingInList(this);
+        }
 	}
  
 	protected override void Update () {
@@ -75,6 +80,10 @@ public class Building : WorldObject {
         CalculateBounds();
         
 	}
+
+    public Vector3 GetPosition() {
+        return transform.position;
+    }
 
 	public override void SetSelection(bool selected, Rect playingArea) {
     	base.SetSelection(selected, playingArea);

@@ -11,6 +11,7 @@ public class Player : MonoBehaviour {
 	public Color teamColor;
 
 	private List<Unit> unitsList = new List<Unit>();
+	private List<Building> buildingsList = new List<Building>();
 	public List<WorldObject> selections;
 
 	public int startMoney, startMoneyLimit, startPower, startPowerLimit;
@@ -79,6 +80,10 @@ public class Player : MonoBehaviour {
     				tempBuilding.SetTransparentMaterial(notAllowedMaterial, false);
     			}
 			}
+
+			//foreach (WorldObject obj in selections) {
+			//	obj.currentlySelected = true;
+			//}
 		}
 	}
 
@@ -91,6 +96,14 @@ public class Player : MonoBehaviour {
 
     public List<Unit> GetUnitList() {
     	return unitsList;
+    }
+
+    public void AddBuildingInList(Building building) {
+    	buildingsList.Add(building);
+    }
+
+    public List<Building> GetBuildingList() {
+    	return buildingsList;
     }
 
 
@@ -142,22 +155,37 @@ public class Player : MonoBehaviour {
 	/*** 			SELECTION METHODS 			***/
     
 	// Method to create a box selection, and add the units inside the box to the player selection
+	float epsilon = 2.0f;
     public void BoxSelection(Vector3 from, Vector3 to)
     {
+
         ResetSelection();
         
+        // TODO refactor that ugly code duplication... and should building be in the selection box?
+
         for ( int i = 0 ; i < unitsList.Count ; ++i ) {
         	Unit u = unitsList[i];
             
-            if (((u.GetPosition().x > from.x && u.GetPosition().x < to.x) || (u.GetPosition().x < from.x && u.GetPosition().x > to.x)) &&
-               ((u.GetPosition().z > from.z && u.GetPosition().z < to.z) || (u.GetPosition().z < from.z && u.GetPosition().z > to.z)))
+            if (((u.GetPosition().x + epsilon > from.x && u.GetPosition().x - epsilon < to.x) || (u.GetPosition().x - epsilon < from.x && u.GetPosition().x + epsilon> to.x)) &&
+               ((u.GetPosition().z + epsilon > from.z && u.GetPosition().z - epsilon < to.z) || (u.GetPosition().z - epsilon < from.z && u.GetPosition().z + epsilon> to.z)))
    			{
                 AddSelection(u);   
             }
         }
+
+        for ( int i = 0 ; i < buildingsList.Count ; ++i ) {
+        	Building u = buildingsList[i];
+            
+            if (((u.GetPosition().x + epsilon > from.x && u.GetPosition().x - epsilon < to.x) || (u.GetPosition().x - epsilon < from.x && u.GetPosition().x + epsilon> to.x)) &&
+               ((u.GetPosition().z + epsilon > from.z && u.GetPosition().z - epsilon < to.z) || (u.GetPosition().z - epsilon < from.z && u.GetPosition().z + epsilon> to.z)))
+   			{
+                AddSelection(u);   
+            }
+        }
+
     }
 
-    public void AddSelection(Unit u)
+    public void AddSelection(WorldObject u)
     {
         u.SetSelection(true, this.hud.GetPlayingArea()); 
         selections.Add(u);
@@ -242,7 +270,8 @@ public class Player : MonoBehaviour {
 	 	// For each corner, find the first object hit (from the corner, not the mouse !). If not ground, and an existing world object -> invalid position
 	    foreach ( Vector3 corner in corners ) {
 	        GameObject hitObject = WorkManager.FindHitObject(corner);
-	        if ( hitObject && hitObject.name != "Ground" ) {
+	        if ( hitObject && hitObject.name != "Ground" && hitObject.name != "Bridge" ) {
+	        	//Debug.Log("Hit object : " + hitObject + " / " + hitObject.name);
 	            WorldObject worldObject = hitObject.transform.parent.GetComponent< WorldObject >();
 	            if (worldObject && placeBounds.Intersects(worldObject.GetSelectionBounds())) {
 	            	canPlace = false;
@@ -260,11 +289,11 @@ public class Player : MonoBehaviour {
 	    // Stop the placement mode
 	    findingPlacement = false;
 
-	    // Create the real building
+	    // Create the real building, through the network so that other players can see it too
 	    Debug.Log("Name : " + tempBuilding.name);
 	    GameObject newBuilding = Building.InstantiateBuilding(this.gameObject, tempBuilding.objectName, tempBuilding.transform.position, tempBuilding.transform.rotation);
 
-		// Destroy the temp building
+		// Destroy the temp ghost building
 		Destroy(tempBuilding.gameObject);
 	    
 		tempBuilding = newBuilding.GetComponent< Building >();

@@ -34,11 +34,31 @@ public class SpecificMatchMaker : Photon.PunBehaviour
 
 	void OnJoinedRoom()
 	{
-		Debug.Log("Current player : " + PhotonNetwork.player.ID);
-		int playerID = PhotonNetwork.player.ID;
+
+        Debug.Log("Current player : " + PhotonNetwork.player.ID);
+        
+        Vector3 playerPosition = new Vector3(0, 7, 0);
+
+        // TODO to move in the future lobby script
+        // Starting position for each player
+        switch (PhotonNetwork.player.ID) {
+            case 1:
+                playerPosition.x = 30;
+                break;
+            case 2: 
+                playerPosition.x = -30;
+                playerPosition.z = 30;
+                break;
+            default :
+                break;
+        }
 
 
-
+        // Creation of the player + 2 units
+        GameObject playerObject = Player.InstantiatePlayer(playerPosition);
+        Unit.InstantiateUnit(playerObject, "Builder", new Vector3(playerPosition.x + 2, playerPosition.y, playerPosition.z), Quaternion.identity);
+        Unit.InstantiateUnit(playerObject, "Tank", playerPosition, Quaternion.identity);
+        Building.InstantiateBuilding(playerObject, "Refinery",  new Vector3(playerPosition.x + 5, playerPosition.y, playerPosition.z), Quaternion.identity);
 
 	}
 }
