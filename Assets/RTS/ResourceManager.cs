@@ -27,7 +27,7 @@ namespace RTS {
 		public static float RotateAmount { get { return 10; } }
 		public static int ScrollWidth { get { return 30; } }			// Width from which the camera can be moved (starting from the edge of the screen)
 		public static float MinCameraHeight { get { return 10; } }
-		public static float MaxCameraHeight { get { return 40; } }
+		public static float MaxCameraHeight { get { return 100; } }
 
 
 		// Speed to build units in queue

@@ -15,6 +15,9 @@ public class UserInput : MonoBehaviour {
     private Vector3 selectionStart;
     private Rect boxRect;
 
+    // Variable that allows to know when the user is doing a selection box or a simple left click
+    private bool isInDragMode = false;
+
 	void Start () {
 		player = transform.root.GetComponent< Player >();
 		guiManager = transform.GetComponent< GUIManager >();
@@ -116,14 +119,16 @@ public class UserInput : MonoBehaviour {
 	}
 
 
-	private float delta = 0.5f;
-	// TODO implement a method to compare 2 vectors, to se if they are almost equal (with a small delta)
-
-
+	/*
+	* When left mouse is pressed, the "isInDragMode" tag is put to true. If the left mouse is not released, then it means
+	* that the user is doing a selection, so the UpdateBoxSelection is called.
+	*/
 	private void MouseActivity() 
 	{	
 		// Handle the pressing of the left or right click
     	if ( Input.GetMouseButtonDown(0) ) {
+    		oldMouse = Input.mousePosition;
+    		isInDragMode = true;
     		LeftMouseClick();
     	} else if ( Input.GetMouseButtonDown(1) ) { 
     		RightMouseClick();
@@ -131,22 +136,23 @@ public class UserInput : MonoBehaviour {
 
     	// Currently handle the left click up here, as it is only used for finishing the selection process
     	if (Input.GetMouseButtonUp(0)) {
+    		isInDragMode = false;
 		    selectionBox = false;
 		    boxRect = Rect.MinMaxRect(0, 0, 0, 0);
 
 		}
 
-		if ( selectionBox && oldMouse != Input.mousePosition ) {
+		// If the user is doing a selection box (drag mode) and that he has moved the box enough from the previous update -> update the selection
+		if ( isInDragMode && selectionBox && !Utils.CompareVector(oldMouse, Input.mousePosition, 0.1f) ) {
 		    UpdateBoxSelection(selectionStart, Input.mousePosition);
+		    oldMouse = Input.mousePosition;
 		}
-		oldMouse = Input.mousePosition;
+		
 
 		// update the selection box value
         guiManager.setSelectionBox(selectionBox, boxRect);
 
     	MouseHover();
-
-    	Debug.Log("End of Mouse activity : " + player.selections + " / Size : " + player.selections.Count);
 	}
 
 
@@ -187,9 +193,8 @@ public class UserInput : MonoBehaviour {
 	                	WorldObject worldObject = hitObject.transform.parent.GetComponent< WorldObject >();	
 	                	if (worldObject) {
 	                    	// we already know the player has no selected object
-	                    	Debug.Log("Player selection, adding : " + worldObject.name);
+	                    	player.selections.Add(worldObject);
 	                    	worldObject.SetSelection(true, player.hud.GetPlayingArea());
-	                    	Debug.Log("Player actual selection : " + player.selections.Count);
 	                	}	
 	            	} else {
 	            		// TODO put here the selection box start?

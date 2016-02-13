@@ -43,7 +43,7 @@ public class SpecificMatchMaker : Photon.PunBehaviour
         // Starting position for each player
         switch (PhotonNetwork.player.ID) {
             case 1:
-                playerPosition.x = 30;
+                playerPosition.x = 40;
                 break;
             case 2: 
                 playerPosition.x = -30;

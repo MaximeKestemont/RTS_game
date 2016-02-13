@@ -91,10 +91,7 @@ public class WorldObject : Photon.MonoBehaviour {
 	public virtual void SetSelection(bool selected, Rect playingArea) {
     	currentlySelected = selected;
     	
-    	// Add the object to the player selection
-    	player.selections.Add(this);
     	if (selected) {
-    		Debug.Log("" + this.name + " selected !");
     		this.playingArea = playingArea;
     		if (audioElement != null) audioElement.Play(selectSound);
     	}

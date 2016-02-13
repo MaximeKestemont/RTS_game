@@ -206,7 +206,7 @@ public class Building : WorldObject {
         Rect selectBox = WorkManager.CalculateSelectionBox(selectionBounds, playingArea);
         //Draw the selection box around the currently selected object, within the bounds of the main draw area
         GUI.BeginGroup(playingArea);
-        CalculateCurrentHealth(0.5f, 0.99f); //myPhotonView.RPC("CalculateCurrentHealth", PhotonTargets.All, 0.5f, 0.99f); 
+        myPhotonView.RPC("CalculateCurrentHealth", PhotonTargets.All, 0.5f, 0.99f); 
         DrawHealthBar(selectBox, "Building ...");
         GUI.EndGroup();
     }

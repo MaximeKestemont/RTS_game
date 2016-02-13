@@ -20,6 +20,7 @@ public class Resource : WorldObject {
     }
 
     // Health display differs from standard units - the color stays the same, but the bar still needs to decrease (done by HealthPercentage)
+    [PunRPC]
     protected override void CalculateCurrentHealth (float lowSplit, float highSplit) {
     	healthPercentage = amountLeft / capacity;
     	healthStyle.normal.background = ResourceManager.GetResourceHealthBar(resourceType);

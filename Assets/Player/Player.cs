@@ -160,21 +160,9 @@ public class Player : MonoBehaviour {
     {
 
         ResetSelection();
-        
-        // TODO refactor that ugly code duplication... and should building be in the selection box?
 
         for ( int i = 0 ; i < unitsList.Count ; ++i ) {
         	Unit u = unitsList[i];
-            
-            if (((u.GetPosition().x + epsilon > from.x && u.GetPosition().x - epsilon < to.x) || (u.GetPosition().x - epsilon < from.x && u.GetPosition().x + epsilon> to.x)) &&
-               ((u.GetPosition().z + epsilon > from.z && u.GetPosition().z - epsilon < to.z) || (u.GetPosition().z - epsilon < from.z && u.GetPosition().z + epsilon> to.z)))
-   			{
-                AddSelection(u);   
-            }
-        }
-
-        for ( int i = 0 ; i < buildingsList.Count ; ++i ) {
-        	Building u = buildingsList[i];
             
             if (((u.GetPosition().x + epsilon > from.x && u.GetPosition().x - epsilon < to.x) || (u.GetPosition().x - epsilon < from.x && u.GetPosition().x + epsilon> to.x)) &&
                ((u.GetPosition().z + epsilon > from.z && u.GetPosition().z - epsilon < to.z) || (u.GetPosition().z - epsilon < from.z && u.GetPosition().z + epsilon> to.z)))
