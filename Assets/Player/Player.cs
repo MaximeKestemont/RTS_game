@@ -15,7 +15,7 @@ public class Player : MonoBehaviour {
 	public List<WorldObject> selections;
 
 	public int startMoney, startMoneyLimit, startPower, startPowerLimit;
-	private Dictionary< ResourceType, int > resources, resourceLimits;
+	public Dictionary< ResourceType, int > resources, resourceLimits;
 
 	public Material notAllowedMaterial, allowedMaterial;		// Material for the building placement
  
@@ -69,7 +69,6 @@ public class Player : MonoBehaviour {
 	
 	void Update () {
 		if ( human ) {
-    		hud.SetResourceValues(resources, resourceLimits);
 
     		// If the player is in the process of placing a building, check the validity of the placement
     		if (findingPlacement) {
@@ -141,6 +140,29 @@ public class Player : MonoBehaviour {
 	private void AddStartResources() {
 		resources[ResourceType.Money] += startMoney;
 		resources[ResourceType.Power] += startPower;
+	}
+
+	// Check if the player can remove the resources resourcesToSubstract
+	public bool CanRemoveResources( Dictionary<ResourceType, int> resourcesToSubstract ) 
+	{
+		// For each resource to substract, check that the player has enough resource to do it.
+		foreach( KeyValuePair<ResourceType, int> resource in resourcesToSubstract ) {
+			if ( resources[resource.Key] < resource.Value ) return false;
+		}	
+		// If the function manages to go here, it means that the player had enough resources
+		return true;	
+	}
+
+	// Remove the resources resourcesToSubstract from the player resources
+	public void RemoveResources( Dictionary<ResourceType, int> resourcesToSubstract ) 
+	{	
+		// Substract each resources
+		Debug.Log("REMOVE RESOURCE");
+		Debug.Log("Resource to substract : " + resourcesToSubstract.Count);
+		foreach( KeyValuePair<ResourceType, int> resource in resourcesToSubstract ) {
+			resources[resource.Key] -= resource.Value;
+			Debug.Log(" Resource " + resource.Key + " : " + resources[resource.Key]);
+		}
 	}
 
 	public void AddResource(ResourceType type, int amount) {

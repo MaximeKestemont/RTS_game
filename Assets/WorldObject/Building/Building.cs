@@ -127,7 +127,15 @@ public class Building : WorldObject {
 
 	// Put unit in the queue
 	protected void CreateUnit(string unitName) {
-    	buildQueue.Enqueue(unitName);
+        // If the unit is a valid unit
+        if ( ResourceManager.GetUnit(unitName) && ResourceManager.GetUnit(unitName).GetComponent< Unit >() ) {
+            // Check that the player has enough resources to create the unit
+            if ( player.CanRemoveResources(ResourceManager.GetUnit(unitName).GetComponent< Unit >().GetCostFromArray()) ) {
+                // Substract the cost of the unit, and queue it in the build queue
+                player.RemoveResources(ResourceManager.GetUnit(unitName).GetComponent< Unit >().GetCostFromArray());
+                buildQueue.Enqueue(unitName);
+            }      
+        }
 	}
 
 	// Process the queue. When the build progress is finished for a unit, add this unit to the field.
@@ -139,6 +147,7 @@ public class Building : WorldObject {
                     if (audioElement != null) 
                         audioElement.Play(finishedJobSound);
             		player.AddUnit(buildQueue.Dequeue(), spawnPoint, rallyPoint, transform.rotation, this);
+
             	}
             	currentBuildProgress = 0.0f;
         	}

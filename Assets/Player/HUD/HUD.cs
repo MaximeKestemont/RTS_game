@@ -38,8 +38,6 @@ public class HUD : MonoBehaviour {
     private CursorState activeCursorState;
     private int currentFrame = 0;
 
-    private Dictionary< ResourceType, int > resourceValues, resourceLimits;
-
     // Give the last object selected, and the value in the scrollbar we are at (for the display of actions available)
     private WorldObject lastSelection;
     private float sliderValue;
@@ -57,22 +55,15 @@ public class HUD : MonoBehaviour {
         // Init the state of the cursor
         SetCursorState(CursorState.Select);
 
-        // Init the resources
-        resourceValues = new Dictionary< ResourceType, int >();
-        resourceLimits = new Dictionary< ResourceType, int >();
 
         resourceImages = new Dictionary< ResourceType, Texture2D >();
         for (int i = 0; i < resources.Length; i++) {
             switch (resources[i].name) {
                 case "Money":
                     resourceImages.Add(ResourceType.Money, resources[i]);
-                    resourceValues.Add(ResourceType.Money, 0);
-                    resourceLimits.Add(ResourceType.Money, 0);
                     break;
                 case "Power":
                     resourceImages.Add(ResourceType.Power, resources[i]);
-                    resourceValues.Add(ResourceType.Power, 0);
-                    resourceLimits.Add(ResourceType.Power, 0);
                     break;
                 default: break;
             }
@@ -102,13 +93,6 @@ public class HUD : MonoBehaviour {
             DrawMouseCursor();
 		}
 	}
-
-
-    public void SetResourceValues(Dictionary< ResourceType, int > resourceValues, Dictionary< ResourceType, int > resourceLimits) {
-        this.resourceValues = resourceValues;
-        this.resourceLimits = resourceLimits;
-    }
-
 
 	public bool MouseInBounds() {
     	//Screen coordinates start in the lower-left corner of the screen
@@ -187,7 +171,7 @@ public class HUD : MonoBehaviour {
 
     private void DrawResourceIcon(ResourceType type, int iconLeft, int textLeft, int topPos) {
         Texture2D icon = resourceImages[type];
-        string text = resourceValues[type].ToString() + "/" + resourceLimits[type].ToString();
+        string text = player.resources[type].ToString() + "/" + player.resourceLimits[type].ToString();
         GUI.DrawTexture(new Rect(iconLeft, topPos, ICON_WIDTH, ICON_HEIGHT), icon);
         GUI.Label (new Rect(textLeft, topPos, TEXT_WIDTH, TEXT_HEIGHT), text);
     }

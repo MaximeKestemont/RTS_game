@@ -9,7 +9,13 @@ public class WorldObject : Photon.MonoBehaviour {
 
 	public string objectName;	// TODO currently not unique - may cause a problem later on
 	public Texture2D buildImage;
-	public int cost, sellValue;
+	
+	// Cost and sell values for the objects
+	public ResourceType[] costType;
+	public int[] costValue; 
+	public int sellValue; // TODO change
+	private Dictionary< ResourceType, int > cost = new Dictionary< ResourceType, int >();
+
 	public int hitPoints, maxHitPoints;
 	public float weaponRange = 10.0f;	// default range
 	public float weaponRechargeTime = 1.0f;	// attack speed
@@ -49,6 +55,11 @@ public class WorldObject : Photon.MonoBehaviour {
 
 		// Get back  the network view, to be able to call RPC method on it
 		myPhotonView = this.GetComponent<PhotonView>();
+
+		// Fill in the dictionary of Cost/value, with the 2 arrays filled in the prefab 
+		for (int i = 0 ; i < costType.Length ; i++ ) {
+			cost.Add(costType[i], costValue[i]);
+		}
 	}
  
 	protected virtual void Start () {
@@ -86,6 +97,20 @@ public class WorldObject : Photon.MonoBehaviour {
 	
     protected virtual void AnimationUpdate() {
         // to specifiy in children
+    }
+
+    // Return the already computed cost
+    public Dictionary< ResourceType, int > GetCost() { return cost; }
+    
+    // Return the cost of the object based on the costType and costValue arrays.
+    // This is useful when getting the cost from the prefab (object not yet instantiated), as the Awake method where the cost
+    // is computed has not been called yet.
+    public Dictionary< ResourceType, int > GetCostFromArray() {
+    	Dictionary<ResourceType, int> myCost = new Dictionary<ResourceType, int>();
+    	for (int i = 0 ; i < costType.Length ; i++ ) {
+			myCost.Add(costType[i], costValue[i]);
+		}
+		return myCost;
     }
 
 	public virtual void SetSelection(bool selected, Rect playingArea) {
