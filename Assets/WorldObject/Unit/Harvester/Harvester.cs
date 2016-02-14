@@ -58,7 +58,13 @@ public class Harvester : Unit {
                     	if (!resourceDeposit.isEmpty() ) {
                         	harvesting = true;
                         	StartMove (resourceDeposit.transform.position, resourceDeposit.gameObject);
-                    	}
+                    	} else {
+                            // TODO no need to check each player as only the player with the view matter + seems to work fine without that part...
+                            /*foreach ( Player player in ResourceManager.GetPlayers() ) {
+                                player.RemoveFromSelection(resourceDeposit);
+                            }*/
+                            Destroy(resourceDeposit);
+                        }
                 	}
             	}
         	}

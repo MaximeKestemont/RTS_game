@@ -96,7 +96,7 @@ public class Building : WorldObject {
                 	flag.Enable();
            	 	}
         	} else {
-            	if(flag && player.human) flag.Disable();
+            	if ( flag && player.human ) flag.Disable();
         	}
     	}
 	}
@@ -106,8 +106,8 @@ public class Building : WorldObject {
     	
     	//only handle input if owned by a human player and currently selected
     	if (player && player.human && currentlySelected) {
-        	if(hoverObject.name == "Ground") {
-            	if(player.hud.GetPreviousCursorState() == CursorState.RallyPoint) 
+        	if (hoverObject.name == "Ground" || hoverObject.name == "Bridge" ) {
+            	if (player.hud.GetPreviousCursorState() == CursorState.RallyPoint) 
                     player.hud.SetCursorState(CursorState.RallyPoint);
         	}
     	}
@@ -228,9 +228,9 @@ public class Building : WorldObject {
     }
 
     private void SetSpawnPoint() {
-        float spawnX = selectionBounds.center.x + transform.forward.x * selectionBounds.extents.x + transform.forward.x * 10;
-        float spawnY = selectionBounds.center.y;
-        float spawnZ = selectionBounds.center.z + transform.forward.z + selectionBounds.extents.z + transform.forward.z * 10;
+        float spawnX = selectionBounds.center.x + transform.forward.x * selectionBounds.extents.x + transform.forward.x * 5;
+        float spawnY = transform.position.y;
+        float spawnZ = selectionBounds.center.z + transform.forward.z + selectionBounds.extents.z + transform.forward.z * 5;
         spawnPoint = new Vector3(spawnX, spawnY, spawnZ);
         rallyPoint = spawnPoint;
     }

@@ -29,7 +29,7 @@ public class Unit : WorldObject {
 
     // Method to initialize the unit, make the name corresponding to the player and sending the parent object name to the network
     // so that other players can re-create the object hierarchy
-    public static void InstantiateUnit(GameObject playerObject, string prefabName, Vector3 unitPosition, Quaternion unitQuaternion) 
+    public static GameObject InstantiateUnit(GameObject playerObject, string prefabName, Vector3 unitPosition, Quaternion unitQuaternion) 
     {
         int playerID = PhotonNetwork.player.ID;
 
@@ -44,6 +44,8 @@ public class Unit : WorldObject {
         GameObject unitObject = PhotonNetwork.Instantiate(prefabName, unitPosition, unitQuaternion, 0, data);
         unitObject.name = prefabName + playerID;
         unitObject.transform.parent = units.transform;
+
+        return unitObject;
     }
 
 

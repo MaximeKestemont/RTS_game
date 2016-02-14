@@ -135,7 +135,7 @@ public class Player : MonoBehaviour {
 	{
     	Debug.Log ("add " + unitName + " to player");
 
-		GameObject newUnit = (GameObject)Instantiate(ResourceManager.GetUnit(unitName), spawnPoint, rotation);
+		GameObject newUnit = Unit.InstantiateUnit(this.gameObject, unitName, spawnPoint, Quaternion.identity);
 		
 		// parent of unit = Units (list of all units of the player)
 		Units units = GetComponentInChildren< Units >();

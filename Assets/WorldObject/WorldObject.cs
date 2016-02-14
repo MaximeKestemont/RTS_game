@@ -417,7 +417,7 @@ public class WorldObject : Photon.MonoBehaviour {
 	    if ( hitPoints <= 0 ) {
 	    	// TODO animation for the object being destroyed
 
-	    	// Remove object from the selections of every player
+	    	// Remove object from the selections of every player 	// TODO select only the player with the view, as the other player will not see it anyway...
 	    	foreach ( Player player in ResourceManager.GetPlayers() ) {
 	    		player.RemoveFromSelection(this);
 	    	}
