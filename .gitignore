@@ -3,7 +3,9 @@
 # =============== #
 Temp/
 Library/
-
+*.pdb
+*.exe
+*.app
 
 # ========================================== #
 # Visual Studio / MonoDevelop / Vi generated #
