@@ -417,10 +417,18 @@ public class WorldObject : Photon.MonoBehaviour {
 	    if ( hitPoints <= 0 ) {
 	    	// TODO animation for the object being destroyed
 
+	    	// TODO the list of units, buildings, selections, should be Unity object, without internal list in Player class, so that when destroying an object,
+	    	// we do not need to remove it manually from every possible list...
+	    	
 	    	// Remove object from the selections of every player 	// TODO select only the player with the view, as the other player will not see it anyway...
-	    	foreach ( Player player in ResourceManager.GetPlayers() ) {
-	    		player.RemoveFromSelection(this);
+	    	foreach ( Player p in ResourceManager.GetPlayers() ) {
+	    		p.RemoveFromSelection(this);
 	    	}
+
+	    	// Remove object from the player owning it (the check on player is there as the player variable will not be filled for networking players...)
+	    	if (player) player.RemoveFromList(this);
+
+	    	// Finally destroy object
 	    	Destroy(gameObject);
 	    }
 	}

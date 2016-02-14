@@ -94,6 +94,10 @@ public class Player : MonoBehaviour {
     	unitsList.Add(unit);
     }
 
+    public void RemoveUnitInList(Unit unit) {
+    	unitsList.Remove(unit);
+    }
+
     public List<Unit> GetUnitList() {
     	return unitsList;
     }
@@ -102,8 +106,22 @@ public class Player : MonoBehaviour {
     	buildingsList.Add(building);
     }
 
+    public void RemoveBuildingInList(Building building) {
+    	buildingsList.Remove(building);
+    }
+
     public List<Building> GetBuildingList() {
     	return buildingsList;
+    }
+
+    // Remove the object from all list of the players.
+    public void RemoveFromList(WorldObject obj) {
+    	if ( obj is Unit ) {
+    		RemoveUnitInList((Unit)obj);
+    	}
+    	if ( obj is Building ) {
+    		RemoveBuildingInList((Building)obj);
+    	}
     }
 
 
