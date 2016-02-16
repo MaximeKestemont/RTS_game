@@ -139,8 +139,13 @@ public class WorldObject : Photon.MonoBehaviour {
 	}
  
 	public virtual void PerformAction(string actionToPerform) {
-		Debug.Log("Perform action Building");
-    	//it is up to children with specific actions to determine what to do with each of those actions
+		Debug.Log("Perform action");
+    	// it is up to children with specific actions to determine what to do with each of those actions
+	}
+
+	public virtual void DisplayActionTooltip(string tooltipName) {
+		Debug.Log("Display action tooltip");
+		// it is up to children with specific actions to determine what to display for each of those actions, when hovering on it
 	}
 
 	public virtual void SetHoverState(GameObject hoverObject) {

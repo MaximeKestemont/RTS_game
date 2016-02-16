@@ -91,6 +91,8 @@ public class HUD : MonoBehaviour {
     		DrawOrdersBar();
     		DrawResourceBar();
             DrawMouseCursor();
+
+            DrawTooltip();
 		}
 	}
 
@@ -127,10 +129,11 @@ public class HUD : MonoBehaviour {
 
             if (selectedObject.IsOwnedBy(player) ) {
                 //reset slider value if the selected object has changed
-                if (lastSelection && lastSelection != selectedObject) 
-                    sliderValue = 0.0f;
+                if (lastSelection && lastSelection != selectedObject) sliderValue = 0.0f;
                 
+                // Draw the list of actions 
                 DrawActions(selectedObject.GetActions());
+                
                 //store the current selection
                 lastSelection = selectedObject;
 
@@ -279,6 +282,7 @@ public class HUD : MonoBehaviour {
     }
 
 
+    // Draw the available actions, and create the buttons that will dispatch the PerformAction to the selected object (with the corresponding action).
     private void DrawActions(string[] actions) {
         GUIStyle buttons = new GUIStyle();
         buttons.hover.background = buttonHover;
@@ -302,8 +306,9 @@ public class HUD : MonoBehaviour {
             Rect pos = GetButtonPos(row, column);
             Texture2D action = ResourceManager.GetBuildImage(actions[i]);
             if (action) {
-                //create the button and handle the click of that button
-                if( GUI.Button(pos, action) ) {
+                // Create the button and handle the click of that button
+                // The tooltip is filled with the name of the action, so that we can display the information corresponding to it when hovering
+                if( GUI.Button(pos, new GUIContent(action, actions[i])) ) {
                     Debug.Log("Button Click");
                     if ( player.selections.Count == 1 ) {
                         player.selections[0].PerformAction(actions[i]);
@@ -359,6 +364,16 @@ public class HUD : MonoBehaviour {
                     SetCursorState(CursorState.Select);
                 }
             }
+        }
+    }
+
+    // Draw the tooltip when hovering hover an action button, corresponding to the action related to the button
+    private void DrawTooltip() {
+        Debug.Log("HOVER ON : " + GUI.tooltip);
+
+        // Call the display method of the selected object, with the tooltip name to display
+        if ( player.selections.Count == 1 ) {
+            player.selections[0].DisplayActionTooltip(GUI.tooltip);
         }
     }
 

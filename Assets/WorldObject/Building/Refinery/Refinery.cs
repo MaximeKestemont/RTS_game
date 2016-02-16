@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using RTS;
  
 public class Refinery : Building {
 
@@ -12,5 +13,12 @@ public class Refinery : Building {
     public override void PerformAction(string actionToPerform) {
         base.PerformAction(actionToPerform);
         CreateUnit(actionToPerform);
+    }
+
+    public override void DisplayActionTooltip(string tooltipName) {
+    	base.DisplayActionTooltip(tooltipName);
+
+    	// TODO
+    	GUI.DrawTexture(new Rect(2 * 50, 20, 100, 100), ResourceManager.HealthyTexture);
     }
 }
