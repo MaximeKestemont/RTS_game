@@ -105,6 +105,7 @@ public class Unit : WorldObject {
             
             // Initial rotation to the first waypoint
             targetRotation = Quaternion.LookRotation (path.vectorPath[0] - transform.position);
+            targetRotation = Quaternion.Euler(0, targetRotation.eulerAngles.y, 0);      // Lock the rotation for the x and z axis
         }
     }
 
@@ -223,6 +224,9 @@ public class Unit : WorldObject {
             // Rotate towards the new waypoint
             if (currentWaypoint < path.vectorPath.Count) {
             targetRotation = Quaternion.LookRotation (path.vectorPath[currentWaypoint] - transform.position);
+
+            // TODO better without locking, but bug with the bridge...
+            //targetRotation = Quaternion.Euler(0, targetRotation.eulerAngles.y, 0);      // Lock the rotation for the x and z axis
 
                 // Adjust the rotation if too small of a change, but do not stop the movement.
                 if (Quaternion.Angle(targetRotation,transform.rotation) > 15 ) {
