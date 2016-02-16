@@ -87,6 +87,10 @@ public class Unit : WorldObject {
             oldPosition = transform.position;
             CalculateBounds();
         }
+
+        // Avoid the stacking of units. This method is currently HIGHLY inefficient, as it is in O(n^2), n being the number of units.
+        // TODO at one point, implement a proper flocking algorithm.
+        CalculateFlocking();
 	}
 
 	protected override void OnGUI() {
@@ -289,23 +293,26 @@ public class Unit : WorldObject {
     }
 
 
+    // TODO CURRENTLY HIGHLY (!) INEFFICIENT
     // This method checks that the unit is not moving too close to another unit. If this is the case, the position is slighty changed.
-    private Vector3 CalculateFlocking()
+    private void CalculateFlocking()
     {
         Vector3 ret = Vector3.zero;
 
+        // Loop on every unit, and check that no unit is too close from that one
         foreach ( Player player in ResourceManager.GetPlayers() ) {
             foreach ( Unit unit in player.GetUnitList() ) {
 
                 if ( this != unit ) {
-                    // TODO check that the computation here is correct
                     Vector3 delta = this.transform.position - unit.transform.position;
-                    delta.y = 0;    // TODO to change if air unit at one point
                     float dist = delta.magnitude;
-                    float mindist = 1; // TODO to replace with the bounds computation ... this.transform.Radius + unit.transform.Radius;  // minimal distance required between the 2 objects = radius sum
 
+                    // minimal distance required between the 2 objects
+                    float mindist = 2; // TODO to replace with the bounds computation ... this.transform.Radius + unit.transform.Radius; 
+
+                    // If too close, move the unit a bit on the delta direction 
                     if ( dist < mindist ) {
-                        if ( dist < 0.1 ) delta = new Vector3(Random.Range(-0.5f, 0.5f), 0, Random.Range(-0.5f, 0.5f));
+                        //if ( dist < 0.1 ) delta = new Vector3(Random.Range(-0.5f, 0.5f), 0, Random.Range(-0.5f, 0.5f));
                         float weight = mindist - dist;
                         if ( weight < 0 ) weight = 0;
                         ret += delta.normalized * weight;
@@ -314,8 +321,7 @@ public class Unit : WorldObject {
 
             }
         }
-        return ret;
-
+        this.transform.position = new Vector3(this.transform.position.x + ret.x, this.transform.position.y, this.transform.position.z + ret.z) ;
     }
 
 
