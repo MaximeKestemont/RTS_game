@@ -144,7 +144,7 @@ public class WorldObject : Photon.MonoBehaviour {
 	}
 
 	public virtual void DisplayActionTooltip(string tooltipName) {
-		Debug.Log("Display action tooltip");
+		//Debug.Log("Display action tooltip");
 		// it is up to children with specific actions to determine what to display for each of those actions, when hovering on it
 	}
 

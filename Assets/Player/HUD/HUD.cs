@@ -7,7 +7,6 @@ using RTS;
 public class HUD : MonoBehaviour {
 
     // Those variables are not in the ResourceManager because they are not re-used by other classes.
-	private const int ORDERS_BAR_WIDTH = 150, RESOURCE_BAR_HEIGHT = 40;
 	private const int SELECTION_NAME_HEIGHT = 15;
     private const int ICON_WIDTH = 32, ICON_HEIGHT = 32, TEXT_WIDTH = 128, TEXT_HEIGHT = 32;
     private const int BUILD_IMAGE_WIDTH = 64, BUILD_IMAGE_HEIGHT = 64;
@@ -15,7 +14,7 @@ public class HUD : MonoBehaviour {
     private const int SCROLL_BAR_WIDTH = 22;
     private const int BUILD_IMAGE_PADDING = 8;
 
-    private int buildAreaHeight = 0;
+    private float buildAreaHeight = 0;
 
 	public GUISkin resourceSkin, ordersSkin, selectBoxSkin, mouseCursorSkin;
     private Dictionary< ResourceType, Texture2D > resourceImages;
@@ -38,6 +37,12 @@ public class HUD : MonoBehaviour {
     private CursorState activeCursorState;
     private int currentFrame = 0;
 
+    // Texture for resources
+    public Texture2D goldImage;
+
+    // Texture for menu
+    public Texture2D menuSkin;
+
     // Give the last object selected, and the value in the scrollbar we are at (for the display of actions available)
     private WorldObject lastSelection;
     private float sliderValue;
@@ -51,6 +56,12 @@ public class HUD : MonoBehaviour {
 
         // Load the select box skin
         ResourceManager.StoreSelectBoxItems(selectBoxSkin, healthy, damaged, critical);
+
+        // Load the resources textures
+        ResourceManager.StoreResourcesTextures(goldImage);
+
+        // Load the menu skin
+        ResourceManager.StoreMenuSkin(menuSkin);
 
         // Init the state of the cursor
         SetCursorState(CursorState.Select);
@@ -69,7 +80,7 @@ public class HUD : MonoBehaviour {
             }
         }
 
-        buildAreaHeight = Screen.height - RESOURCE_BAR_HEIGHT - SELECTION_NAME_HEIGHT - 2 * BUTTON_SPACING;
+        buildAreaHeight = Screen.height - ResourceManager.RESOURCE_BAR_HEIGHT - SELECTION_NAME_HEIGHT - 2 * BUTTON_SPACING;
 
         // Init the resource health bar
         Dictionary< ResourceType, Texture2D > resourceHealthBarTextures = new Dictionary< ResourceType, Texture2D >();
@@ -89,7 +100,7 @@ public class HUD : MonoBehaviour {
 	public void OnGUI () {
 		if (player && player.human) {
     		DrawOrdersBar();
-    		DrawResourceBar();
+    		DrawResourceBar(); // TODO use the texture for resource in ResourceManager
             DrawMouseCursor();
 
             DrawTooltip();
@@ -100,25 +111,25 @@ public class HUD : MonoBehaviour {
     	//Screen coordinates start in the lower-left corner of the screen
     	//not the top-left of the screen like the drawing coordinates do
     	Vector3 mousePos = Input.mousePosition;
-    	bool insideWidth = mousePos.x >= 0 && mousePos.x <= Screen.width - ORDERS_BAR_WIDTH;
-    	bool insideHeight = mousePos.y >= 0 && mousePos.y <= Screen.height - RESOURCE_BAR_HEIGHT;
+    	bool insideWidth = mousePos.x >= 0 && mousePos.x <= Screen.width - ResourceManager.ORDERS_BAR_WIDTH;
+    	bool insideHeight = mousePos.y >= 0 && mousePos.y <= Screen.height - ResourceManager.RESOURCE_BAR_HEIGHT;
     	return insideWidth && insideHeight;
 	}
 
 
     public Rect GetPlayingArea() {
-        return new Rect(0, RESOURCE_BAR_HEIGHT, Screen.width - ORDERS_BAR_WIDTH, Screen.height - RESOURCE_BAR_HEIGHT);
+        return new Rect(0, ResourceManager.RESOURCE_BAR_HEIGHT, Screen.width - ResourceManager.ORDERS_BAR_WIDTH, Screen.height - ResourceManager.RESOURCE_BAR_HEIGHT);
     }
 
 
 	private void DrawOrdersBar() {
     	GUI.skin = ordersSkin;
         GUI.BeginGroup(new Rect(
-            Screen.width - ORDERS_BAR_WIDTH - BUILD_IMAGE_WIDTH, 
-            RESOURCE_BAR_HEIGHT, 
-            ORDERS_BAR_WIDTH + BUILD_IMAGE_WIDTH, 
-            Screen.height - RESOURCE_BAR_HEIGHT));
-        GUI.Box(new Rect(BUILD_IMAGE_WIDTH + SCROLL_BAR_WIDTH, 0, ORDERS_BAR_WIDTH, Screen.height - RESOURCE_BAR_HEIGHT),"");
+            Screen.width - ResourceManager.ORDERS_BAR_WIDTH - BUILD_IMAGE_WIDTH, 
+            ResourceManager.RESOURCE_BAR_HEIGHT, 
+            ResourceManager.ORDERS_BAR_WIDTH + BUILD_IMAGE_WIDTH, 
+            Screen.height - ResourceManager.RESOURCE_BAR_HEIGHT));
+        GUI.Box(new Rect(BUILD_IMAGE_WIDTH + SCROLL_BAR_WIDTH, 0, ResourceManager.ORDERS_BAR_WIDTH, Screen.height - ResourceManager.RESOURCE_BAR_HEIGHT),"");
 
 
     	// Display the object selected, if there is only one object selected
@@ -146,9 +157,9 @@ public class HUD : MonoBehaviour {
 		}
 
         if (!selectionName.Equals("")) {
-            int leftPos = BUILD_IMAGE_WIDTH + SCROLL_BAR_WIDTH / 2;
-            int topPos = buildAreaHeight + BUTTON_SPACING;
-            GUI.Label(new Rect(leftPos, topPos, ORDERS_BAR_WIDTH, SELECTION_NAME_HEIGHT), selectionName);
+            float leftPos = BUILD_IMAGE_WIDTH + SCROLL_BAR_WIDTH / 2;
+            float topPos = buildAreaHeight + BUTTON_SPACING;
+            GUI.Label(new Rect(leftPos, topPos, ResourceManager.ORDERS_BAR_WIDTH, SELECTION_NAME_HEIGHT), selectionName);
         }
 
     	GUI.EndGroup();
@@ -160,8 +171,8 @@ public class HUD : MonoBehaviour {
             0,
     		0,
     		Screen.width,
-    		RESOURCE_BAR_HEIGHT));
-    	GUI.Box(new Rect(0,0,Screen.width,RESOURCE_BAR_HEIGHT),"");
+    		ResourceManager.RESOURCE_BAR_HEIGHT));
+    	GUI.Box(new Rect(0,0,Screen.width,ResourceManager.RESOURCE_BAR_HEIGHT),"");
 
         int topPos = 4, iconLeft = 4, textLeft = 20;
         DrawResourceIcon(ResourceType.Money, iconLeft, textLeft, topPos);
@@ -292,11 +303,11 @@ public class HUD : MonoBehaviour {
         int numActions = actions.Length;
 
         // define the area to draw the actions inside
-        GUI.BeginGroup( new Rect( BUILD_IMAGE_WIDTH, 0, ORDERS_BAR_WIDTH, buildAreaHeight ) );
+        GUI.BeginGroup( new Rect( BUILD_IMAGE_WIDTH, 0, ResourceManager.ORDERS_BAR_WIDTH, buildAreaHeight ) );
 
         // draw scroll bar for the list of actions if need be
-        if (numActions >= MaxNumRows(buildAreaHeight)) {
-            DrawSlider(buildAreaHeight, numActions / 2.0f);
+        if (numActions >= MaxNumRows( (int)buildAreaHeight ) ) {
+            DrawSlider( (int)buildAreaHeight, numActions / 2.0f);
         }
     
         // display possible actions as buttons and handle the button click for each
@@ -345,7 +356,7 @@ public class HUD : MonoBehaviour {
         buttons.active.background = smallButtonClick;
         GUI.skin.button = buttons;
         int leftPos = BUILD_IMAGE_WIDTH + SCROLL_BAR_WIDTH + BUTTON_SPACING;
-        int topPos = buildAreaHeight - BUILD_IMAGE_HEIGHT / 2;
+        float topPos = buildAreaHeight - BUILD_IMAGE_HEIGHT / 2;
         int width = BUILD_IMAGE_WIDTH / 2;
         int height = BUILD_IMAGE_HEIGHT / 2;
 

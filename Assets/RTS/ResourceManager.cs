@@ -6,6 +6,24 @@ namespace RTS {
 	// This class stores the static global variables (not STATE variables !), that are re-used accross several classes.
     public static class ResourceManager {
 		
+    	// Weight (so that we can scale depending on the resolution and the screen size)
+    	public const float weight = 1.0f;
+
+    	// HUD related variables
+    	public const float ORDERS_BAR_WIDTH = 150 * weight;
+    	public const float RESOURCE_BAR_HEIGHT = 40 * weight;
+
+    	// Tooltip related variables (for displaying the information about units, etc.)
+    	public const float TOOLTIP_WIDTH = 100 * weight;
+    	public const float TOOLTIP_HEIGHT = 100 * weight;
+    	public const float TEXT_HEIGHT = 30 * weight; 			// height of the text in the tooltip
+    	public const float MARGIN = 5 * weight;
+
+    	// Resources related textures and variables
+    	public const float RESOURCE_IMAGE_WIDTH = 64 * weight, RESOURCE_IMAGE_HEIGHT = 64 * weight;
+    	private static Texture2D goldImage;
+    	public static Texture2D GoldImage { get { return goldImage; } }
+
 		// Menu related variables
 		public static bool MenuOpen { get; set; }
 		private static float buttonHeight = 40;
@@ -53,6 +71,11 @@ namespace RTS {
     		resourceHealthBarTextures = images;
 		}
 
+		// Set the resource icon when displaying the tooltip or the resource bar
+		public static void StoreResourcesTextures(Texture2D goldTexture) {
+			goldImage = goldTexture; 
+		}
+
 		// Get the health bar texture for resources (ore,...)
 		public static Texture2D GetResourceHealthBar(ResourceType resourceType) {
     		if(resourceHealthBarTextures != null && resourceHealthBarTextures.ContainsKey(resourceType)) {
@@ -72,6 +95,14 @@ namespace RTS {
 			healthyTexture = healthy;
     		damagedTexture = damaged;
     		criticalTexture = critical;
+		}
+
+		// Menu skin
+		private static Texture2D menuSkin;
+		public static Texture2D MenuSkin { get { return menuSkin; }}
+
+		public static void StoreMenuSkin(Texture2D menuTexture) {
+			menuSkin = menuTexture;
 		}
 
 
