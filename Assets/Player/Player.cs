@@ -142,6 +142,19 @@ public class Player : MonoBehaviour {
 		resources[ResourceType.Power] += startPower;
 	}
 
+	// Check if the player is dead (i.e. not having a single unit or building left)
+	public bool IsDead() {
+	    Building[] buildings = GetComponentsInChildren< Building >();
+	    Unit[] units = GetComponentsInChildren< Unit >();
+	    if(buildings != null && buildings.Length > 0) return false;
+	    if(units != null && units.Length > 0) return false;
+	    return true;
+	}
+
+	/*** -------------------------------------- ***/
+	/*** 			ADDING A UNIT   			***/
+	/*** -------------------------------------- ***/
+
 	// Check if the player can remove the resources resourcesToSubstract
 	public bool CanRemoveResources( Dictionary<ResourceType, int> resourcesToSubstract ) 
 	{
@@ -169,6 +182,10 @@ public class Player : MonoBehaviour {
 		resources[type] += amount;
 	}
 
+	public int GetResourceAmount(ResourceType type) {
+	    return resources[type];
+	}
+
 
 	// Method to add a new unit to the player.
 	public void AddUnit(string unitName, Vector3 spawnPoint, Vector3 rallyPoint, Quaternion rotation, Building creator) 
@@ -191,9 +208,10 @@ public class Player : MonoBehaviour {
 
 	}
 
-
+	/*** -------------------------------------- ***/
 	/*** 			SELECTION METHODS 			***/
-    
+    /*** -------------------------------------- ***/
+
 	// Method to create a box selection, and add the units inside the box to the player selection
 	float epsilon = 2.0f;
     public void BoxSelection(Vector3 from, Vector3 to)

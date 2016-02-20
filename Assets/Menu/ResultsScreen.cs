@@ -36,6 +36,8 @@ public class ResultsScreen : MonoBehaviour {
         
         if (winner) message = "Congratulations " + winner.username + "! You have won by " + metVictoryCondition.GetDescription();
 
+        GUI.skin = null;
+		GUI.Box(new Rect(0, 0, 500, 50), ""); // put the texture here instead of ""
         GUI.Label(new Rect(leftPos, topPos, Screen.width - 2 * padding, itemHeight), message);
         leftPos = Screen.width / 2 - padding / 2 - buttonWidth;
         topPos += itemHeight + padding;

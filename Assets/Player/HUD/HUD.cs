@@ -380,7 +380,6 @@ public class HUD : MonoBehaviour {
 
     // Draw the tooltip when hovering hover an action button, corresponding to the action related to the button
     private void DrawTooltip() {
-        Debug.Log("HOVER ON : " + GUI.tooltip);
 
         // Call the display method of the selected object, with the tooltip name to display
         if ( player.selections.Count == 1 ) {

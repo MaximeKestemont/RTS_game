@@ -15,6 +15,7 @@ public class GameManager : MonoBehaviour {
     private HUD hud;
      
     void Awake() {
+    	// singleton
         if(!created) {
             DontDestroyOnLoad(transform.gameObject);
             created = true;
@@ -22,7 +23,10 @@ public class GameManager : MonoBehaviour {
         } else {
             Destroy(this.gameObject);
         }
-        if(initialised) {
+    }
+
+    void Start() {
+    	if(initialised) {
             LoadDetails();
         }
     }
@@ -34,11 +38,7 @@ public class GameManager : MonoBehaviour {
     }
      
     private void LoadDetails() {
-        Player[] players = GameObject.FindObjectsOfType(typeof(Player)) as Player[];
-        foreach (Player player in players) {
-            if (player.human) hud = player.GetComponentInChildren< HUD >(); // TODO change that so that the check is done on the player which owns the session
-        }
-        // victoryConditions = GameObject.FindObjectsOfType(typeof(VictoryCondition)) as VictoryCondition[];
+        victoryConditions = GameObject.FindObjectsOfType(typeof(VictoryCondition)) as VictoryCondition[];
 
     }
      
@@ -46,6 +46,12 @@ public class GameManager : MonoBehaviour {
         if (victoryConditions != null) {
             foreach (VictoryCondition victoryCondition in victoryConditions) {
                 if (victoryCondition.GameFinished()) {
+                	Player[] players = GameObject.FindObjectsOfType(typeof(Player)) as Player[];
+
+        			foreach (Player player in players) {
+            			if (player.human) hud = player.GetComponentInChildren< HUD >(); // TODO change that so that the check is done on the player which owns the session
+        			}
+
                     ResultsScreen resultsScreen = hud.GetComponent< ResultsScreen >();
                     resultsScreen.SetMetVictoryCondition(victoryCondition);
                     resultsScreen.enabled = true;
