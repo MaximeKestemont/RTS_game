@@ -20,8 +20,6 @@ public class Refinery : Building {
     public override void DisplayActionTooltip(string tooltipName) {
     	base.DisplayActionTooltip(tooltipName);
 
-
-    	// TODO
     	switch (tooltipName) {
     		case "Harvester" :
     			GUI.skin = null;
