@@ -26,24 +26,44 @@ public class Building : WorldObject {
 
     // Method to initialize the building, make the name corresponding to the player and sending the parent object name to the network
     // so that other players can re-create the object hierarchy
-    public static GameObject InstantiateBuilding(GameObject playerObject, string prefabName, Vector3 buildingPosition, Quaternion buildingQuaternion) 
+    public static GameObject InstantiateBuilding(GameObject gameObject, string prefabName, Vector3 buildingPosition, Quaternion buildingQuaternion) 
     {
+        GameObject buildingObject = null;
+
         int playerID = PhotonNetwork.player.ID;
 
-        // Get the Units object
-        Buildings buildings = playerObject.GetComponentInChildren< Buildings >();
+        if (gameObject.GetComponent<Player>()) {
 
-        // Store the name of the parent 
-        object[] data = new object[1];
-        data[0] = buildings.name;           // parent name
+            // Get the Units object
+            Buildings buildings = gameObject.GetComponentInChildren< Buildings >();
 
-        // Create the unit, and send the parent name so that it can be retrieved from other player views to re-build the hierarchy
-        GameObject buildingObject = PhotonNetwork.Instantiate(prefabName, buildingPosition, buildingQuaternion, 0, data);
-        
-        // Modify the name so that it is unique (corresponding to the playerID)
-        buildingObject.name = prefabName + playerID;
-        buildingObject.transform.parent = buildings.transform;
+            // Store the name of the parent 
+            object[] data = new object[1];
+            data[0] = buildings.name;           // parent name
 
+            // Create the unit, and send the parent name so that it can be retrieved from other player views to re-build the hierarchy
+            buildingObject = PhotonNetwork.Instantiate(prefabName, buildingPosition, buildingQuaternion, 0, data);
+            
+            // Modify the name so that it is unique (corresponding to the playerID)
+            buildingObject.name = prefabName + playerID;
+            buildingObject.transform.parent = buildings.transform;
+        }
+
+        if (gameObject.GetComponent<Team>()) {
+            Team team = gameObject.GetComponent<Team>();
+
+            // Store the name of the parent 
+            object[] data = new object[1];
+            data[0] = team.name;           // parent name
+
+            // TODO send data?
+            buildingObject = PhotonNetwork.Instantiate(prefabName, buildingPosition, buildingQuaternion, 0, data);
+            team.AddBuildingInList(buildingObject.GetComponent<Building>());
+
+            // Modify the name so that it is unique (corresponding to the team)
+            buildingObject.name = prefabName + team.teamName;
+            buildingObject.transform.parent = team.transform;
+        }
         return buildingObject;
     }
 
