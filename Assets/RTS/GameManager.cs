@@ -9,17 +9,25 @@ using RTS;
  
 public class GameManager : MonoBehaviour {
      
+
+    private static GameManager gameManager = null;
     private static bool created = false;
     private bool initialised = false;
     private VictoryCondition[] victoryConditions;
     private HUD hud;
+    private int nextObjectId = 0;           // used to assign a unique id to WorldObjects
      
+
+    public static GameManager GetGameManager() { return gameManager; }
+
     void Awake() {
     	// singleton
         if(!created) {
             DontDestroyOnLoad(transform.gameObject);
             created = true;
             initialised = true;
+            gameManager = this;
+            SetObjectIds();
         } else {
             Destroy(this.gameObject);
         }
@@ -62,6 +70,18 @@ public class GameManager : MonoBehaviour {
                 }
             }
         }
+    }
+
+    public void SetObjectIds() {
+        WorldObject[] worldObjects = GameObject.FindObjectsOfType(typeof(WorldObject)) as WorldObject[];
+        foreach (WorldObject worldObject in worldObjects) {
+            worldObject.objectId = nextObjectId++;
+            if (nextObjectId >= int.MaxValue) nextObjectId = 0;
+        }
+    }
+
+    public void AssignObjectId(WorldObject obj) {
+        obj.objectId = nextObjectId++;
     }
      
 }

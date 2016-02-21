@@ -8,6 +8,7 @@ using Photon;
 public class WorldObject : Photon.MonoBehaviour {
 
 	public string objectName;	// TODO currently not unique - may cause a problem later on
+	public int objectId;		// must be unique
 	public Texture2D buildImage;
 	
 	// Cost and sell values for the objects
@@ -32,7 +33,7 @@ public class WorldObject : Photon.MonoBehaviour {
 	protected float healthPercentage = 1.0f;
 
 
-	// Combat related variables
+	// Combat variables
 	protected WorldObject target = null; 			// attack target
 	protected bool attacking = false; 				// attack mode or not
 	protected bool movingIntoPosition = false;		// moving into position to be able to attack
@@ -40,13 +41,22 @@ public class WorldObject : Photon.MonoBehaviour {
 
 	private List< Material > oldMaterials = new List< Material >(); // Store the list of materials, to restore them later on
 
-	// Audio related variables
+	// Audio variables
 	public AudioClip attackSound, selectSound, useWeaponSound;
 	public float attackVolume = 1.0f, selectVolume = 1.0f, useWeaponVolume = 1.0f;
 	protected AudioElement audioElement;
 
-	// Network related variables
+	// Network variables
 	public PhotonView myPhotonView;
+
+	// Detection range and detected objects (for AI)
+	public float detectionRange = 20.0f;
+	protected List< WorldObject > nearbyObjects;
+
+	// AI variables
+	private float timeSinceLastDecision = 0.0f;		
+	private float timeBetweenDecisions = 0.1f;		// restrict the time between AI related decisions, for performance issues
+
 
 
 	protected virtual void Awake() {
@@ -60,12 +70,16 @@ public class WorldObject : Photon.MonoBehaviour {
 		for (int i = 0 ; i < costType.Length ; i++ ) {
 			cost.Add(costType[i], costValue[i]);
 		}
+
 	}
  
 	protected virtual void Start () {
 
 		// Initialize the player to which the object belong - if there is one
     	SetPlayer();
+
+    	// Initialize the unique objectId // TODO check if it works well in multiplayer
+    	if (GameManager.GetGameManager()) GameManager.GetGameManager().AssignObjectId(this);
 
     	// Initialize the color of the object depending on the player owning it
     	if ( player ) {
@@ -79,7 +93,9 @@ public class WorldObject : Photon.MonoBehaviour {
  
  	// TODO maybe the attack part should be moved to a subclass of world object being able to attack, as the non attacking building here will still
  	// have to handle those checks...
-	protected virtual void Update () {
+	protected virtual void Update () 
+	{
+		if (ShouldMakeDecision()) DecideWhatToDo();
 		// Progress towards the reloading of weapon
 	    currentWeaponChargeTime += Time.deltaTime;
 
@@ -341,9 +357,14 @@ public class WorldObject : Photon.MonoBehaviour {
     	player = transform.root.GetComponentInChildren< Player >();
 	}
 
+	public Player GetPlayer() {
+	    return player;
+	}
 
 
-	/*** 				Attack methods 				***/ 
+	/*** ------------------------------------------------------ ***/
+	/*** 					Attack methods   					***/
+	/*** ------------------------------------------------------ ***/
 
 	public virtual bool CanAttack() {
     	//default behaviour needs to be overidden by children
@@ -469,6 +490,53 @@ public class WorldObject : Photon.MonoBehaviour {
 		Destroy(obj);
 	}
 
+
+	/*** ------------------------------------------------------ ***/
+	/*** 				AI related methods   					***/
+	/*** ------------------------------------------------------ ***/
+
+	/**
+	 * A child class should only determine other conditions under which a decision should
+	 * not be made. This could be 'harvesting' for a harvester, for example. Alternatively,
+	 * an object that never has to make decisions could just return false.
+	 */
+	protected virtual bool ShouldMakeDecision() {
+	    if (!attacking && !movingIntoPosition && !aiming) {
+	        // we are not doing anything at the moment
+	        if (timeSinceLastDecision > timeBetweenDecisions) {
+	            timeSinceLastDecision = 0.0f;
+	            return true;
+	        } else {
+	        	timeSinceLastDecision += Time.deltaTime;
+	        }
+	    }
+	    return false;
+	}
+	 
+	protected virtual void DecideWhatToDo() {
+	    // determine what should be done by the world object at the current point in time
+	    Vector3 currentPosition = transform.position;
+	    nearbyObjects = WorkManager.FindNearbyObjects(currentPosition, detectionRange);
+
+	    // If able to attack, attack the closest unit
+	    if ( CanAttack() ) {
+		    List< WorldObject > enemyObjects = new List< WorldObject >();
+		    
+		    // Filter only the ennemy objects
+		    foreach (WorldObject nearbyObject in nearbyObjects) {
+		        Resource resource = nearbyObject.GetComponent< Resource >();
+		        // TODO add a filter for the neutral object
+		        if (resource) continue;
+		        if (nearbyObject.GetPlayer() != player) enemyObjects.Add(nearbyObject);
+		    }
+		    WorldObject closestObject = WorkManager.FindNearestWorldObjectInListToPosition(enemyObjects, currentPosition);
+		    if (closestObject) BeginAttack(closestObject);
+		}
+	}
+
+	/*** ------------------------------------------------------ ***/
+	/*** 				Audio methods   						***/
+	/*** ------------------------------------------------------ ***/
 
 	// Initialise the audio settings by creating the audio element containing the audio objects (containing the audio clip).
 	protected virtual void InitialiseAudio() {

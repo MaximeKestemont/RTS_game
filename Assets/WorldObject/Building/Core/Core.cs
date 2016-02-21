@@ -12,6 +12,10 @@ public class Core : Building {
     protected override void Start () {
         base.Start();
     }
+
+    protected override bool ShouldMakeDecision () {
+	    return false;
+	}
  
     public override void PerformAction(string actionToPerform) {
         base.PerformAction(actionToPerform);

@@ -25,6 +25,11 @@ public class Resource : WorldObject {
     	healthPercentage = amountLeft / capacity;
     	healthStyle.normal.background = ResourceManager.GetResourceHealthBar(resourceType);
 	}
+
+    // No decision to take for resources
+    protected override bool ShouldMakeDecision () {
+        return false;
+    }
  
     /*** Public methods ***/
  

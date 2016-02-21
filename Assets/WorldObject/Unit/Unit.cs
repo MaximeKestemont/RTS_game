@@ -118,6 +118,14 @@ public class Unit : WorldObject {
     }
 
 
+    // No decision to take when moving or rotating
+    protected override bool ShouldMakeDecision () {
+        if (moving || rotating) 
+            return false;
+        else 
+            return base.ShouldMakeDecision();
+    }
+
     public Vector3 GetPosition() {
         return transform.position;
     }
@@ -295,6 +303,7 @@ public class Unit : WorldObject {
 
     // TODO CURRENTLY HIGHLY (!) INEFFICIENT
     // This method checks that the unit is not moving too close to another unit. If this is the case, the position is slighty changed.
+    // TODO use the NearbyObject list !!!
     private void CalculateFlocking()
     {
         Vector3 ret = Vector3.zero;

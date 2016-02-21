@@ -43,6 +43,15 @@ public class Worker : Unit {
         }
     }
 
+    // No decision to take if in building phase
+    protected override bool ShouldMakeDecision () {
+        if (building) 
+            return false;
+        else 
+            return base.ShouldMakeDecision();
+    }
+
+
     // TODO move this to Unit class and make it generic ?
     // TODO is it not too consuming to call this in the Update method?
     protected override void AnimationUpdate() {

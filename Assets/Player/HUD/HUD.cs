@@ -66,7 +66,6 @@ public class HUD : MonoBehaviour {
         // Init the state of the cursor
         SetCursorState(CursorState.Select);
 
-
         resourceImages = new Dictionary< ResourceType, Texture2D >();
         for (int i = 0; i < resources.Length; i++) {
             switch (resources[i].name) {

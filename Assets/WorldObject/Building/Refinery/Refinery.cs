@@ -11,6 +11,10 @@ public class Refinery : Building {
         base.Start();
         actions = new string[] {"Harvester"};
     }
+
+    protected override bool ShouldMakeDecision () {
+        return false;
+    }
  
     public override void PerformAction(string actionToPerform) {
         base.PerformAction(actionToPerform);

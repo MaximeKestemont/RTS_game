@@ -62,5 +62,44 @@ namespace RTS {
             else return ResourceManager.InvalidPosition;
         }
 
+
+        public static List< WorldObject > FindNearbyObjects(Vector3 position, float range) 
+        {
+            HashSet< int > nearbyObjectIds = new HashSet< int >();
+            List< WorldObject > nearbyObjects = new List< WorldObject >();
+            
+            Collider[] hitColliders = Physics.OverlapSphere(position, range);
+
+            // Get the parent of the collider hitten, i.e. the worldObject it belongs to
+            for ( int i = 0 ; i < hitColliders.Length ; i++ ) {
+                Transform parent = hitColliders[i].transform.parent;
+                if ( parent ) {
+                    WorldObject parentObject = parent.GetComponent< WorldObject >();
+                    if (parentObject && !nearbyObjectIds.Contains(parentObject.objectId)) { 
+                        nearbyObjectIds.Add(parentObject.objectId);
+                        nearbyObjects.Add(parentObject);
+                    }
+                }
+            }
+            return nearbyObjects;
+        }
+
+        // Method to get the nearest object from the position in the list of objects
+        public static WorldObject FindNearestWorldObjectInListToPosition(List< WorldObject > objects, Vector3 position) 
+        {
+            if (objects == null || objects.Count == 0) return null;
+           
+            WorldObject nearestObject = objects[0];
+            float distanceToNearestObject = Vector3.Distance(position, nearestObject.transform.position);
+            for ( int i = 1; i < objects.Count; i++ ) {
+                float distanceToObject = Vector3.Distance(position, objects[i].transform.position);
+                if (distanceToObject < distanceToNearestObject) {
+                    distanceToNearestObject = distanceToObject;
+                    nearestObject = objects[i];
+                }
+            }
+            return nearestObject;
+        }
+
     }
 }

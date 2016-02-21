@@ -9,6 +9,9 @@ public class WarFactory : Building {
         actions = new string[] { "Tank" };
     }
 
+    protected override bool ShouldMakeDecision () {
+        return false;
+    }
 	
 	public override void PerformAction(string actionToPerform) {
     	base.PerformAction(actionToPerform);

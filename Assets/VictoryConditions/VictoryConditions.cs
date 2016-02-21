@@ -18,7 +18,7 @@ public abstract class VictoryCondition : MonoBehaviour {
     public virtual bool GameFinished() {
         if ( ResourceManager.GetPlayers() == null ) return true;
         foreach ( Player player in ResourceManager.GetPlayers() ) {
-            if(PlayerMeetsConditions(player)) return true;
+            if (PlayerMeetsConditions(player)) return true;
         }
         return false;
     }

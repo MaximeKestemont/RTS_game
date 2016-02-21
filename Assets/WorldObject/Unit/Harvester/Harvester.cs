@@ -71,6 +71,14 @@ public class Harvester : Unit {
     	}
 	}
 
+    // No decision to take when harvesting or emptying
+    protected override bool ShouldMakeDecision () {
+        if (harvesting || emptying) 
+            return false;
+        else
+            return base.ShouldMakeDecision();
+    }
+
     // Link the harverster to the building having created it (the refinery)
     public override void SetBuilding (Building creator) {
         base.SetBuilding (creator);
