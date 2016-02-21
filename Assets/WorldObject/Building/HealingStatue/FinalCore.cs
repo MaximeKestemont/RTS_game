@@ -3,7 +3,7 @@ using System.Collections;
 
 
 // TODO change to CoreStatue, which gives something to the opponent when destroyed
-public class HealingStatue : Building {
+public class FinalCore : Building {
 
 
 	/*** Game Engine methods, all can be overridden by subclass ***/
