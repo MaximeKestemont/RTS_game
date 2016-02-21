@@ -21,6 +21,9 @@ public class Team : MonoBehaviour {
 		myTeam.teamName = teamName;
 		myTeam.teamColor = teamColor;
 
+		// Adding the team to the RM
+		ResourceManager.AddTeam(myTeam);
+
 	 	return myTeam;
 	}
 

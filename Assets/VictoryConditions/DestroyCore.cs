@@ -13,6 +13,9 @@ public class DestroyCore : VictoryCondition {
     }
      
     public override bool PlayerMeetsConditions (Player player) {
+    	// TODO need to check that the core of all other team is destroyed
+
+
         return player && !player.IsDead() && player.GetResourceAmount(type) >= amount;
     }
 }
