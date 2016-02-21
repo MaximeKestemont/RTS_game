@@ -159,10 +159,55 @@ public class WorldObject : Photon.MonoBehaviour {
     	// it is up to children with specific actions to determine what to do with each of those actions
 	}
 
-	public virtual void DisplayActionTooltip(string tooltipName) {
-		//Debug.Log("Display action tooltip");
-		// it is up to children with specific actions to determine what to display for each of those actions, when hovering on it
-	}
+    public virtual void DisplayActionTooltip(string tooltipName) {
+
+
+    	switch (tooltipName) {
+    		case "Harvester" :
+    			GUI.skin = null;
+    			GUI.BeginGroup(new Rect(
+        			Screen.width - ResourceManager.ORDERS_BAR_WIDTH - ResourceManager.TOOLTIP_WIDTH + ResourceManager.MARGIN, 
+        			ResourceManager.RESOURCE_BAR_HEIGHT + ResourceManager.MARGIN, 
+        			ResourceManager.TOOLTIP_WIDTH, 
+        			ResourceManager.TOOLTIP_HEIGHT));
+        		GUI.Box(new Rect(0, 0, Screen.width, Screen.height), ""); // put the texture here instead of ""
+
+        		// WRITE THE TEXT HERE
+        		GameObject obj = ResourceManager.GetUnit(tooltipName);
+        		Unit unit = obj.GetComponent<Unit>();
+
+        		// Display the name of the object
+        		GUI.Label (new Rect( 
+        			ResourceManager.MARGIN, 
+        			ResourceManager.MARGIN, 
+        			Screen.width, 
+        			Screen.height), 
+        		    "" + unit.objectName);
+
+        		// Display the gold cost (below the object name)
+        		GUI.Label (new Rect(
+        			ResourceManager.MARGIN * 2, 
+        			ResourceManager.MARGIN + ResourceManager.TEXT_HEIGHT, 
+        			Screen.width, 
+        			Screen.height), 
+        		    "" + unit.costValue[0]);
+        		
+        		// Display the gold icon (right of the cost)
+        		GUI.DrawTexture(new Rect(
+        			ResourceManager.MARGIN * 2 + 30, 
+        			ResourceManager.MARGIN + ResourceManager.TEXT_HEIGHT, 
+        			ResourceManager.RESOURCE_IMAGE_WIDTH / 3, 
+        			ResourceManager.RESOURCE_IMAGE_HEIGHT / 3), 
+        			ResourceManager.GoldImage);
+
+        		GUI.EndGroup();
+
+    			break;
+    		default: 
+    			break;
+    	}
+    	
+    }
 
 	public virtual void SetHoverState(GameObject hoverObject) {
 	    //only handle input if owned by a human player and currently selected
@@ -454,7 +499,7 @@ public class WorldObject : Photon.MonoBehaviour {
 	// Method handling the firing part of the attack (and resetting the attack load time)
 	protected virtual void UseWeapon() {
 
-		if(audioElement != null) 
+		if (audioElement != null) 
 			audioElement.Play(useWeaponSound);
 
 		// Reset the loading time of the weapon, for the next attack

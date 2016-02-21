@@ -27,12 +27,9 @@ public class Turret : Building {
     }
      
     public override bool CanAttack() {
-    	Debug.Log("Can attack ? ");
         if ( UnderConstruction() || hitPoints == 0 ) {
-        	Debug.Log("Nope...");
         	return false;
         } else { 
-        	Debug.Log("YEA...");
         	return true;
         }
     }
