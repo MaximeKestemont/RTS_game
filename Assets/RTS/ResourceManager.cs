@@ -149,6 +149,11 @@ namespace RTS {
 			return listPlayers;
 		}
 
+		// Team related variables
+		private static List<Team> teamList = new List<Team>();
+		
+		public static void AddTeam(Team team) { teamList.Add(team); }
+		public static List<Team> GetTeams() { return teamList; }
 
     }
 }

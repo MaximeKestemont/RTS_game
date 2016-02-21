@@ -36,29 +36,41 @@ public class SpecificMatchMaker : Photon.PunBehaviour
 	{
 
         Debug.Log("Current player : " + PhotonNetwork.player.ID);
+
+        // Creation of the teams
+        Team team1 = Team.InstantiateTeam("Red", Color.red);
+        Team team2 = Team.InstantiateTeam("Blue", Color.blue);
+
+
         
         Vector3 playerPosition = new Vector3(0, 7, 0);
+        GameObject playerObject;
 
         // TODO to move in the future lobby script
         // Starting position for each player
         switch (PhotonNetwork.player.ID) {
             case 1:
                 playerPosition.x = 40;
+                playerObject = Player.InstantiatePlayer(playerPosition);
+                team1.AddPlayerInTeam(playerObject.GetComponent<Player>());
                 break;
             case 2: 
                 playerPosition.x = -30;
                 playerPosition.z = 30;
+                playerObject = Player.InstantiatePlayer(playerPosition);
+                team2.AddPlayerInTeam(playerObject.GetComponent<Player>());
                 break;
             default :
+                playerObject = Player.InstantiatePlayer(playerPosition);
                 break;
         }
 
 
         // Creation of the player + 2 units
-        GameObject playerObject = Player.InstantiatePlayer(playerPosition);
         Unit.InstantiateUnit(playerObject, "Builder", new Vector3(playerPosition.x + 2, playerPosition.y, playerPosition.z), Quaternion.identity);
         Unit.InstantiateUnit(playerObject, "Tank", playerPosition, Quaternion.identity);
         Building.InstantiateBuilding(playerObject, "Refinery",  new Vector3(playerPosition.x + 5, playerPosition.y, playerPosition.z), Quaternion.identity);
+        Building.InstantiateBuilding(playerObject, "FinalCore",  new Vector3(playerPosition.x - 10, playerPosition.y, playerPosition.z - 10), Quaternion.identity);
 
 	}
 }

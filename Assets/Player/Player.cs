@@ -8,7 +8,8 @@ public class Player : MonoBehaviour {
 	public HUD hud;
 	public string username;
 	public bool human;
-	public Color teamColor;
+	public Color teamColor; // TODO should be the player color, not the team color
+	public Team team;
 
 	private List<Unit> unitsList = new List<Unit>();
 	private List<Building> buildingsList = new List<Building>();
