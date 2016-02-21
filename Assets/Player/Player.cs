@@ -271,6 +271,7 @@ public class Player : MonoBehaviour {
     	if (tempBuilding) {
         	tempCreator = creator;
         	findingPlacement = true;
+        	tempBuilding.hitPoints = 0;
         	tempBuilding.SetTransparentMaterial(notAllowedMaterial, true);
         	tempBuilding.SetColliders(false);
         	tempBuilding.SetPlayingArea(playingArea);
@@ -356,6 +357,7 @@ public class Player : MonoBehaviour {
 	    tempBuilding.SetColliders(true);
 	    tempCreator.SetBuilding(tempBuilding);
 	    tempBuilding.StartConstruction();
+	    tempBuilding.hitPoints = 0;
 	    
 	    // Reset it to null so that the building is not deleted by the CreateBuilding method
 	    tempBuilding = null;
