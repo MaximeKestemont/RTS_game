@@ -30,7 +30,7 @@ public class Team : MonoBehaviour {
 
 	public void AddPlayerInTeam(Player player) { 
 		playersList.Add(player);
-		player.team = this; 
+		player.SetTeam(this); 
 	}
 	
 

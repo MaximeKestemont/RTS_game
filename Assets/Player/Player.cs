@@ -9,7 +9,7 @@ public class Player : MonoBehaviour {
 	public string username;
 	public bool human;
 	public Color teamColor; // TODO should be the player color, not the team color
-	public Team team;
+	private Team team;
 
 	private List<Unit> unitsList = new List<Unit>();
 	private List<Building> buildingsList = new List<Building>();
@@ -151,6 +151,9 @@ public class Player : MonoBehaviour {
 	    if(units != null && units.Length > 0) return false;
 	    return true;
 	}
+
+	public Team GetTeam() { return team; }
+	public void SetTeam(Team team) { this.team = team; }
 
 	/*** -------------------------------------- ***/
 	/*** 			ADDING A UNIT   			***/

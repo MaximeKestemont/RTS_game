@@ -159,55 +159,10 @@ public class WorldObject : Photon.MonoBehaviour {
     	// it is up to children with specific actions to determine what to do with each of those actions
 	}
 
-    public virtual void DisplayActionTooltip(string tooltipName) {
-
-
-    	switch (tooltipName) {
-    		case "Harvester" :
-    			GUI.skin = null;
-    			GUI.BeginGroup(new Rect(
-        			Screen.width - ResourceManager.ORDERS_BAR_WIDTH - ResourceManager.TOOLTIP_WIDTH + ResourceManager.MARGIN, 
-        			ResourceManager.RESOURCE_BAR_HEIGHT + ResourceManager.MARGIN, 
-        			ResourceManager.TOOLTIP_WIDTH, 
-        			ResourceManager.TOOLTIP_HEIGHT));
-        		GUI.Box(new Rect(0, 0, Screen.width, Screen.height), ""); // put the texture here instead of ""
-
-        		// WRITE THE TEXT HERE
-        		GameObject obj = ResourceManager.GetUnit(tooltipName);
-        		Unit unit = obj.GetComponent<Unit>();
-
-        		// Display the name of the object
-        		GUI.Label (new Rect( 
-        			ResourceManager.MARGIN, 
-        			ResourceManager.MARGIN, 
-        			Screen.width, 
-        			Screen.height), 
-        		    "" + unit.objectName);
-
-        		// Display the gold cost (below the object name)
-        		GUI.Label (new Rect(
-        			ResourceManager.MARGIN * 2, 
-        			ResourceManager.MARGIN + ResourceManager.TEXT_HEIGHT, 
-        			Screen.width, 
-        			Screen.height), 
-        		    "" + unit.costValue[0]);
-        		
-        		// Display the gold icon (right of the cost)
-        		GUI.DrawTexture(new Rect(
-        			ResourceManager.MARGIN * 2 + 30, 
-        			ResourceManager.MARGIN + ResourceManager.TEXT_HEIGHT, 
-        			ResourceManager.RESOURCE_IMAGE_WIDTH / 3, 
-        			ResourceManager.RESOURCE_IMAGE_HEIGHT / 3), 
-        			ResourceManager.GoldImage);
-
-        		GUI.EndGroup();
-
-    			break;
-    		default: 
-    			break;
-    	}
-    	
-    }
+	public virtual void DisplayActionTooltip(string tooltipName) {
+		//Debug.Log("Display action tooltip");
+		// it is up to children with specific actions to determine what to display for each of those actions, when hovering on it
+	}
 
 	public virtual void SetHoverState(GameObject hoverObject) {
 	    //only handle input if owned by a human player and currently selected
@@ -245,11 +200,11 @@ public class WorldObject : Photon.MonoBehaviour {
 	public virtual void MouseClick(GameObject hitObject, Vector3 hitPoint, Player controller) {
 	    bool eraseAttackMode = true;
 
-	    //only handle input if currently selected
+	    // only handle input if currently selected
 	    if (currentlySelected && hitObject && hitObject.name != "Ground" && hitObject.name != "Bridge") {
 	        WorldObject worldObject = hitObject.transform.parent.GetComponent< WorldObject >();
 	        
-	        //clicked on another selectable object
+	        // clicked on another selectable object
 	        if (worldObject) {
 	            Resource resource = hitObject.transform.parent.GetComponent< Resource >();
 	            // If the click is on a resource deposit and resource deposit is empty, do nothing
@@ -257,11 +212,12 @@ public class WorldObject : Photon.MonoBehaviour {
 	            	return;
 	            } else {
 		            Player owner = hitObject.transform.root.GetComponent< Player >();
-		            //the object is controlled by a player
+		            
+		            // the object is controlled by a player
 		            if (owner) { 
 		            	// this object is controlled by a human player
 		                if (player && player.human) { 
-		                    //start attack if object is not owned by the same player and this object can attack
+		                    // start attack if object is not owned by the same player and this object can attack
 		                    Debug.Log("Player : " + player.username + "/ : " + player.name);
 		                    Debug.Log("Target : " + owner.username);
 		                    if ( (player.username != owner.username || player.name != owner.username) && CanAttack()) {
@@ -269,6 +225,9 @@ public class WorldObject : Photon.MonoBehaviour {
 		                    	BeginAttack(worldObject);
 		                    } 
 		                } 
+		            } else if ( GetTeam() != worldObject.GetTeam() ) {
+			           	eraseAttackMode = false;
+			            BeginAttack(worldObject);
 		            } 
 		        }
 	    	}
@@ -404,6 +363,15 @@ public class WorldObject : Photon.MonoBehaviour {
 
 	public Player GetPlayer() {
 	    return player;
+	}
+
+	public Team GetTeam() {
+		if ( player ) {
+			return player.GetTeam();
+		} else {
+			Team team = transform.root.GetComponent< Team >();
+			return team;
+		}
 	}
 
 
@@ -572,7 +540,9 @@ public class WorldObject : Photon.MonoBehaviour {
 		        Resource resource = nearbyObject.GetComponent< Resource >();
 		        // TODO add a filter for the neutral object
 		        if (resource) continue;
-		        if (nearbyObject.GetPlayer() != player) enemyObjects.Add(nearbyObject);
+
+		        // If the player is not the same and the team neither, then the object is an enemy
+		        if (nearbyObject.GetPlayer() != player && nearbyObject.GetTeam() != GetTeam() ) enemyObjects.Add(nearbyObject);
 		    }
 		    WorldObject closestObject = WorkManager.FindNearestWorldObjectInListToPosition(enemyObjects, currentPosition);
 		    if (closestObject) BeginAttack(closestObject);
