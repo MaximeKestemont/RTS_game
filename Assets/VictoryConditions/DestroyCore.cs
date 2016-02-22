@@ -4,18 +4,25 @@ using RTS;
  
 public class DestroyCore : VictoryCondition {
      
-    public int amount = 500;
-     
-    private ResourceType type = ResourceType.Money;
      
     public override string GetDescription () {
-        return "Destroy Core";
+        return "Destroying the Core";
     }
      
     public override bool PlayerMeetsConditions (Player player) {
-    	// TODO need to check that the core of all other team is destroyed
+    	Team[] teams = GameObject.FindObjectsOfType(typeof(Team)) as Team[];
 
+    	// If an enemy team still has its core, then the game is not over
+    	foreach ( Team team in teams ) {
+    		if ( player.GetTeam() != team ) {
 
-        return player && !player.IsDead() && player.GetResourceAmount(type) >= amount;
+    			if ( team.GetComponentInChildren<FinalCore>() ) {
+    				return false;
+    			}
+    		}
+    	}
+
+    	// If all enemy teams do not have their core anymore, then the game is over
+    	return true;
     }
 }
