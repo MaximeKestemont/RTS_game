@@ -177,7 +177,13 @@ public class UserInput : MonoBehaviour {
 	    	// Specific behaviour when player is finding a location for his new building
 	        if ( player.IsFindingBuildingLocation() ) {
 	            if ( player.CanPlaceBuilding() ) {
-	            	player.StartConstruction();
+
+	            	// Check that the player has enough resources to construct the building 
+	            	if ( player.CanRemoveResources(ResourceManager.GetBuilding(player.tempBuilding.objectName).GetComponent< Building >().GetCostFromArray()) ) {
+                		// Substract the cost of the building, and start the construction
+                		player.RemoveResources(ResourceManager.GetBuilding(player.tempBuilding.objectName).GetComponent< Building >().GetCostFromArray());
+	            		player.StartConstruction();
+	            	}
 	            }
 	        } else {
 

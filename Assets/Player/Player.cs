@@ -21,7 +21,7 @@ public class Player : MonoBehaviour {
 	public Material notAllowedMaterial, allowedMaterial;		// Material for the building placement
  
  	// Variables for the building
-	private Building tempBuilding;
+	public Building tempBuilding;
 	private Unit tempCreator;
 	private bool findingPlacement = false;
 
@@ -258,7 +258,9 @@ public class Player : MonoBehaviour {
 
 
 
-	/*** 			BUILDING METHODS 			***/
+	/*** -------------------------------------- ***/
+	/*** 			BUILDINGS METHODS 			***/
+    /*** -------------------------------------- ***/
 
 	public void CreateBuilding(string buildingName, Vector3 buildPoint, Unit creator, Rect playingArea) {
 		
