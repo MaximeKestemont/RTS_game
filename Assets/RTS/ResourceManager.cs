@@ -120,6 +120,14 @@ namespace RTS {
 		public static GameObject GetUnit(string name) {
     		return gameObjectList.GetUnit(name);
 		}
+
+		public static GameObject GetUnitOrBuilding(string name) {
+			if ( gameObjectList.GetUnit(name) ) {
+				return gameObjectList.GetUnit(name);
+			} else {
+				return gameObjectList.GetBuilding(name);
+			}
+		}
  
 		public static GameObject GetWorldObject(string name) {
     		return gameObjectList.GetWorldObject(name);

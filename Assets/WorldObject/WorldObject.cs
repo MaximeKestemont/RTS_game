@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -150,9 +151,7 @@ public class WorldObject : Photon.MonoBehaviour {
     	}
 	}
 
-	public string[] GetActions() {
-    	return actions;
-	}
+	public string[] GetActions() { return actions; }
  
 	public virtual void PerformAction(string actionToPerform) {
 		Debug.Log("Perform action");
@@ -373,6 +372,16 @@ public class WorldObject : Photon.MonoBehaviour {
 			return team;
 		}
 	}
+
+	/*** ------------------------------------------------------ ***/
+	/*** 					Building methods   					***/
+	/*** ------------------------------------------------------ ***/
+
+	// Return the requirements in term of buildings already built to be able to create this object
+	public virtual List<Type> GetBuildingRequirements() { return new List<Type>(); }
+
+	// Return the requirements in terme of buildings already built to be able to create this object
+	public virtual List<string> GetTechRequirements() { return new List<string>(); }
 
 
 	/*** ------------------------------------------------------ ***/

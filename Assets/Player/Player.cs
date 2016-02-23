@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System;
 using RTS;
 
 public class Player : MonoBehaviour {
@@ -10,6 +11,7 @@ public class Player : MonoBehaviour {
 	public bool human;
 	public Color teamColor; // TODO should be the player color, not the team color
 	private Team team;
+	private GenericRace race;
 
 	private List<Unit> unitsList = new List<Unit>();
 	private List<Building> buildingsList = new List<Building>();
@@ -69,6 +71,9 @@ public class Player : MonoBehaviour {
 	}
 	
 	void Update () {
+		//bool result = CanCreate(ResourceManager.GetBuilding("Refinery").GetComponent<WorldObject>());
+		//Debug.Log("CAN CREATE REFINERY ???? : " + result);
+
 		if ( human ) {
 
     		// If the player is in the process of placing a building, check the validity of the placement
@@ -154,6 +159,8 @@ public class Player : MonoBehaviour {
 
 	public Team GetTeam() { return team; }
 	public void SetTeam(Team team) { this.team = team; }
+	
+	public GenericRace GetRace() { return race; }
 
 	/*** -------------------------------------- ***/
 	/*** 			ADDING A UNIT   			***/
@@ -376,5 +383,23 @@ public class Player : MonoBehaviour {
 	    WorldObject.RPCDestroy(tempBuilding.gameObject);
 	    tempBuilding = null;
 	    tempCreator = null;
+	}
+
+
+	// Check that the player can create a specific object, by checking that he already possess every requirements needed
+	public bool CanCreate(WorldObject obj) 
+	{
+		List<Type> requirements = obj.GetBuildingRequirements();
+
+		// Check that for each type requirement, there is an object in the children of the player
+		foreach (Type requirement in requirements) {
+			Component objInChildren = this.GetComponentInChildren( requirement );
+
+			// If no object of type requirement was found, then the player cannot create the object yet
+			if (objInChildren == null) {
+				return false;
+			}
+		}
+		return true;
 	}
 }

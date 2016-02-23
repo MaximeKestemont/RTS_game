@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using RTS;
@@ -16,6 +17,11 @@ public class Refinery : Building {
         return false;
     }
  
+
+    public override List<Type> GetBuildingRequirements() {
+        return new List<Type>() { typeof(WarFactory) };
+    }
+
     public override void PerformAction(string actionToPerform) {
         base.PerformAction(actionToPerform);
         CreateUnit(actionToPerform);
