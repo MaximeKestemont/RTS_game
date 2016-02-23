@@ -15,7 +15,7 @@ namespace RTS {
 
     	// Tooltip related variables (for displaying the information about units, etc.)
     	public const float TOOLTIP_WIDTH = 100 * weight;
-    	public const float TOOLTIP_HEIGHT = 100 * weight;
+    	public const float TOOLTIP_HEIGHT = 120 * weight;
     	public const float TEXT_HEIGHT = 30 * weight; 			// height of the text in the tooltip
     	public const float MARGIN = 5 * weight;
 

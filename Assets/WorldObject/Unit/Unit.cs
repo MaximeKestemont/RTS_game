@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using RTS;
@@ -103,11 +104,11 @@ public class Unit : WorldObject {
         base.DisplayActionTooltip(tooltipName);
 
         GameObject obj = ResourceManager.GetBuilding(tooltipName);
-        
 
         if ( obj && obj.GetComponent<Building>() ) {
             Building building = obj.GetComponent<Building>();
             GUI.skin = null;
+
             GUI.BeginGroup(new Rect(
                 Screen.width - ResourceManager.ORDERS_BAR_WIDTH - ResourceManager.TOOLTIP_WIDTH + ResourceManager.MARGIN, 
                 ResourceManager.RESOURCE_BAR_HEIGHT + ResourceManager.MARGIN, 
@@ -115,10 +116,13 @@ public class Unit : WorldObject {
                 ResourceManager.TOOLTIP_HEIGHT));
             GUI.Box(new Rect(0, 0, Screen.width, Screen.height), ""); // put the texture here instead of ""
 
+            float x_offset = 0;
+            float y_offset = 0;
+
             // Display the name of the object
             GUI.Label (new Rect( 
                 ResourceManager.MARGIN, 
-                ResourceManager.MARGIN, 
+                y_offset += ResourceManager.MARGIN, 
                 Screen.width, 
                 Screen.height), 
                 "" + building.objectName);
@@ -127,7 +131,7 @@ public class Unit : WorldObject {
             if ( building.costValue.Length > 0 ) {
                 GUI.Label (new Rect(
                     ResourceManager.MARGIN * 2, 
-                    ResourceManager.MARGIN + ResourceManager.TEXT_HEIGHT, 
+                    y_offset += ResourceManager.TEXT_HEIGHT, 
                     Screen.width, 
                     Screen.height), 
                     "" + building.costValue[0]);
@@ -136,10 +140,38 @@ public class Unit : WorldObject {
             // Display the gold icon (right of the cost)
             GUI.DrawTexture(new Rect(
                 ResourceManager.MARGIN * 2 + 30, 
-                ResourceManager.MARGIN + ResourceManager.TEXT_HEIGHT, 
+                y_offset, 
                 ResourceManager.RESOURCE_IMAGE_WIDTH / 3, 
                 ResourceManager.RESOURCE_IMAGE_HEIGHT / 3), 
                 ResourceManager.GoldImage);
+
+
+            // Display the requirements
+            bool firstRequirement = true;       // to only draw the label once
+
+            foreach (string requirement in building.GetBuildingNameRequirements()) {
+                if ( firstRequirement ) {
+                    GUI.Label (new Rect( 
+                        x_offset += ResourceManager.MARGIN, 
+                        y_offset += ResourceManager.RESOURCE_IMAGE_WIDTH / 3, 
+                        Screen.width, 
+                        Screen.height), 
+                        "Needs : ");
+                    firstRequirement = false;
+                }
+
+                // Draw the image of the requirement
+                Texture2D requirementImage = ResourceManager.GetBuilding(requirement).GetComponent<Building>().GetBuildImage();
+                GUI.DrawTexture(new Rect(
+                    x_offset, 
+                    ResourceManager.MARGIN + ResourceManager.TEXT_HEIGHT + 30, 
+                    ResourceManager.RESOURCE_IMAGE_WIDTH / 1.5f, 
+                    ResourceManager.RESOURCE_IMAGE_HEIGHT / 1.5f), 
+                    requirementImage);
+
+                // Update the x offset 
+                x_offset += ResourceManager.RESOURCE_IMAGE_WIDTH / 1.5f;
+            }
 
             GUI.EndGroup();
         }    

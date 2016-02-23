@@ -373,12 +373,15 @@ public class WorldObject : Photon.MonoBehaviour {
 		}
 	}
 
+	public Texture2D GetBuildImage() { return buildImage; }
+
 	/*** ------------------------------------------------------ ***/
 	/*** 					Building methods   					***/
 	/*** ------------------------------------------------------ ***/
 
 	// Return the requirements in term of buildings already built to be able to create this object
 	public virtual List<Type> GetBuildingRequirements() { return new List<Type>(); }
+	public virtual List<string> GetBuildingNameRequirements() { return new List<string>(); }
 
 	// Return the requirements in terme of buildings already built to be able to create this object
 	public virtual List<string> GetTechRequirements() { return new List<string>(); }
