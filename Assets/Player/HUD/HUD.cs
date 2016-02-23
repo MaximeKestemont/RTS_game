@@ -48,6 +48,11 @@ public class HUD : MonoBehaviour {
     private float sliderValue;
     private CursorState previousCursorState;
 
+    // Audio
+    public AudioClip clickSound;
+    public float clickVolume = 1.0f;
+    protected AudioElement audioElement;
+
 
 
 	public void Start () 
@@ -92,6 +97,8 @@ public class HUD : MonoBehaviour {
             }
         }
         ResourceManager.SetResourceHealthBarTextures(resourceHealthBarTextures);
+
+        InitialiseAudio();
 	}
 	
 
@@ -138,13 +145,13 @@ public class HUD : MonoBehaviour {
     		selectionName = player.selections[0].objectName;
 
             if (selectedObject.IsOwnedBy(player) ) {
-                //reset slider value if the selected object has changed
+                // reset slider value if the selected object has changed
                 if (lastSelection && lastSelection != selectedObject) sliderValue = 0.0f;
                 
                 // Draw the list of actions 
                 DrawActions(selectedObject.GetActions());
                 
-                //store the current selection
+                // store the current selection
                 lastSelection = selectedObject;
 
                 Building selectedBuilding = lastSelection.GetComponent< Building >();
@@ -305,24 +312,36 @@ public class HUD : MonoBehaviour {
         GUI.BeginGroup( new Rect( BUILD_IMAGE_WIDTH, 0, ResourceManager.ORDERS_BAR_WIDTH, buildAreaHeight ) );
 
         // draw scroll bar for the list of actions if need be
-        if (numActions >= MaxNumRows( (int)buildAreaHeight ) ) {
+        if ( numActions >= MaxNumRows( (int)buildAreaHeight ) ) {
             DrawSlider( (int)buildAreaHeight, numActions / 2.0f);
         }
     
         // display possible actions as buttons and handle the button click for each
-        for(int i = 0; i < numActions; i++) {
+        for ( int i = 0; i < numActions; i++ ) {
             int column = i % 2;
             int row = i / 2;
             Rect pos = GetButtonPos(row, column);
             Texture2D action = ResourceManager.GetBuildImage(actions[i]);
+
             if (action) {
-                // Create the button and handle the click of that button
-                // The tooltip is filled with the name of the action, so that we can display the information corresponding to it when hovering
-                if( GUI.Button(pos, new GUIContent(action, actions[i])) ) {
-                    Debug.Log("Button Click");
-                    if ( player.selections.Count == 1 ) {
-                        player.selections[0].PerformAction(actions[i]);
+                // Check that the requirements to perform this action are fulfilled
+                if ( player.CanCreate(ResourceManager.GetUnitOrBuilding(actions[i]).GetComponent<WorldObject>()) ) {
+                    // Create the button and handle the click of that button
+                    // The tooltip is filled with the name of the action, so that we can display the information corresponding to it when hovering
+                    if( GUI.Button(pos, new GUIContent(action, actions[i])) ) {
+                        Debug.Log("Button Click");
+                        if ( player.selections.Count == 1 ) {
+                            audioElement.Play(clickSound);
+                            player.selections[0].PerformAction(actions[i]);
+                        }
+                    }                   
+                } else {
+                    // Change the color to make it obvious that the button is not active
+                    GUI.contentColor = Color.red;
+                    if( GUI.Button(pos, new GUIContent(action, actions[i])) ) {
+                        // TODO play a sound for disabled button
                     }
+                    GUI.contentColor = Color.white;
                 }
             }
         }
@@ -410,4 +429,17 @@ public class HUD : MonoBehaviour {
         return activeCursorState;
     }
 
+
+    // Initialise the audio settings by creating the audio element containing the audio objects (containing the audio clip).
+    public virtual void InitialiseAudio() {
+        List< AudioClip > sounds = new List< AudioClip >();
+        List< float > volumes = new List< float >();
+        
+        // TODO refactor those 3 calls (need to check how to use pointers inside safe context)
+        if (clickVolume < 0.0f) clickVolume = 0.0f;
+        if (clickVolume > 1.0f) clickVolume = 1.0f;
+        sounds.Add(clickSound);
+        volumes.Add(clickVolume);
+        audioElement = new AudioElement(sounds, volumes, "HUD", this.transform);
+    }
 }
