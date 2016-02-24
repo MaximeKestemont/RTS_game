@@ -15,6 +15,7 @@ public class Tank : Unit {
 	    
 	    // If in aiming mode, perform the rotation
 	    if (aiming) {
+	    	moving = false; 	// very important to put the moving to false, as nothing is reseting it if the target is already in range !
 	        transform.rotation = Quaternion.RotateTowards(transform.rotation, aimRotation, weaponAimSpeed);
 	        CalculateBounds();
 	        //sometimes it gets stuck exactly 180 degrees out in the calculation and does nothing, this check fixes that
