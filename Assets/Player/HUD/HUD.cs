@@ -217,13 +217,13 @@ public class HUD : MonoBehaviour {
         // sequence animation for cursor (based on more than one image for the cursor)
         // change once per second, loops through array of images
         if(activeCursorState == CursorState.Move) {
-            currentFrame = (int)Time.time % moveCursors.Length;
+            currentFrame = ( (int)( 2 * Time.time) ) % moveCursors.Length;
             activeCursor = moveCursors[currentFrame];
         } else if(activeCursorState == CursorState.Attack) {
-            currentFrame = (int)Time.time % attackCursors.Length;
+            currentFrame = ( (int)( 2 * Time.time) ) % attackCursors.Length;
             activeCursor = attackCursors[currentFrame];
         } else if(activeCursorState == CursorState.Harvest) {
-            currentFrame = (int)Time.time % harvestCursors.Length;
+            currentFrame = ( (int)( 2 * Time.time) ) % harvestCursors.Length;
             activeCursor = harvestCursors[currentFrame];
         }
     }
