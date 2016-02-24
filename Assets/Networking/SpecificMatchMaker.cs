@@ -70,8 +70,8 @@ public class SpecificMatchMaker : Photon.PunBehaviour
 
 
         // Creation of the player + 2 units
-        Unit.InstantiateUnit(playerObject, "Builder", new Vector3(playerPosition.x + 2, playerPosition.y, playerPosition.z), Quaternion.identity);
+        Unit.InstantiateUnit(playerObject, "Builder", new Vector3(playerPosition.x - 5 , playerPosition.y, playerPosition.z), Quaternion.identity);
         Unit.InstantiateUnit(playerObject, "Tank", playerPosition, Quaternion.identity);
-        Building.InstantiateBuilding(playerObject, "Refinery",  new Vector3(playerPosition.x + 5, playerPosition.y, playerPosition.z), Quaternion.identity);
+        Building.InstantiateBuilding(playerObject, "Refinery",  new Vector3(playerPosition.x + 7, playerPosition.y, playerPosition.z), Quaternion.identity);
 	}
 }
