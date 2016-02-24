@@ -41,7 +41,9 @@ public class SpecificMatchMaker : Photon.PunBehaviour
         Team team1 = Team.InstantiateTeam("Red", Color.red);
         Team team2 = Team.InstantiateTeam("Blue", Color.blue);
 
-        
+        Building.InstantiateBuilding(team1.gameObject, "FinalCore",  new Vector3( 30, 7, -10 ), Quaternion.identity);
+        Building.InstantiateBuilding(team2.gameObject, "FinalCore",  new Vector3( -40, 7, 20), Quaternion.identity);
+
         Vector3 playerPosition = new Vector3(0, 7, 0);
         GameObject playerObject;
 
@@ -52,14 +54,14 @@ public class SpecificMatchMaker : Photon.PunBehaviour
                 playerPosition.x = 40;
                 playerObject = Player.InstantiatePlayer(playerPosition);
                 team1.AddPlayerInTeam(playerObject.GetComponent<Player>());
-                Building.InstantiateBuilding(team1.gameObject, "FinalCore",  new Vector3(playerPosition.x - 10, playerPosition.y, playerPosition.z - 10), Quaternion.identity);
+                
                 break;
             case 2: 
                 playerPosition.x = -30;
                 playerPosition.z = 30;
                 playerObject = Player.InstantiatePlayer(playerPosition);
                 team2.AddPlayerInTeam(playerObject.GetComponent<Player>());
-                Building.InstantiateBuilding(team2.gameObject, "FinalCore",  new Vector3(playerPosition.x - 10, playerPosition.y, playerPosition.z - 10), Quaternion.identity);
+                
                 break;
             default :
                 playerObject = Player.InstantiatePlayer(playerPosition);
