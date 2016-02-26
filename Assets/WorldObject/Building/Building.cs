@@ -32,7 +32,7 @@ public class Building : WorldObject {
 
         int playerID = PhotonNetwork.player.ID;
 
-        if (gameObject.GetComponent<Player>()) {
+        if ( gameObject.GetComponent<Player>()) {
 
             // Get the Units object
             Buildings buildings = gameObject.GetComponentInChildren< Buildings >();
@@ -49,7 +49,7 @@ public class Building : WorldObject {
             buildingObject.transform.parent = buildings.transform;
         }
 
-        if (gameObject.GetComponent<Team>()) {
+        if ( gameObject.GetComponent<Team>()) {
             Team team = gameObject.GetComponent<Team>();
 
             // Store the name of the parent 
@@ -64,6 +64,7 @@ public class Building : WorldObject {
             buildingObject.name = prefabName + team.teamName;
             buildingObject.transform.parent = team.transform;
         }
+
         return buildingObject;
     }
 
@@ -75,6 +76,7 @@ public class Building : WorldObject {
         SetSpawnPoint();
 
         CalculateBounds();
+    
 	}
  
 	protected override void Start () {

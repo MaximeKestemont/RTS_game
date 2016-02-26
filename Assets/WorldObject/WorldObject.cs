@@ -73,7 +73,8 @@ public class WorldObject : Photon.MonoBehaviour {
 		}
 
 	}
- 
+
+
 	protected virtual void Start () {
 
 		// Initialize the player to which the object belong - if there is one
@@ -86,6 +87,11 @@ public class WorldObject : Photon.MonoBehaviour {
     	if ( player ) {
     		SetTeamColor();
     	}
+
+    	// Initialize the layer to "Obstacles", and update the pathfinding graph with this object
+    	if (gameObject) WorkManager.SetLayerRecursively(gameObject, 9);
+        AstarPath.active.UpdateGraphs(selectionBounds);
+
 
     	// Initialise audio settings for the object
     	InitialiseAudio();

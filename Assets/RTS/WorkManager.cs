@@ -2,6 +2,7 @@
 using System.Collections.Generic;
  
 namespace RTS {
+    // TODO should be renamed in Utils
     public static class WorkManager {
 
         // Calculate the selection box when an object is selected (differs from the selection box to select units !). 
@@ -101,5 +102,22 @@ namespace RTS {
             return nearestObject;
         }
 
+
+        // Recursively update the object and its children layers 
+        public static void SetLayerRecursively(GameObject obj, int newLayer)
+        {
+            if (null == obj) {
+                return;
+            }
+           
+            obj.layer = newLayer;
+           
+            foreach (Transform child in obj.transform) {
+                if (null == child) {
+                    continue;
+                }
+                SetLayerRecursively(child.gameObject, newLayer);
+            }
+        }
     }
 }
