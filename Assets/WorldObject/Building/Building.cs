@@ -101,6 +101,18 @@ public class Building : WorldObject {
         
 	}
 
+
+    // Update the list of nearby objects before taking any decision.
+    protected override void DecideWhatToDo() {
+        Vector3 currentPosition = transform.position;
+        nearbyObjects = WorkManager.FindNearbyObjects(currentPosition, detectionRange);
+
+        base.DecideWhatToDo();
+    }
+
+
+
+
     public Vector3 GetPosition() {
         return transform.position;
     }

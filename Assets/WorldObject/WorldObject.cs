@@ -538,11 +538,9 @@ public class WorldObject : Photon.MonoBehaviour {
 	    return false;
 	}
 	 
-	protected virtual void DecideWhatToDo() {
-	    // determine what should be done by the world object at the current point in time
-	    Vector3 currentPosition = transform.position;
-	    nearbyObjects = WorkManager.FindNearbyObjects(currentPosition, detectionRange);
-
+	// determine what should be done by the world object at the current point in time
+	protected virtual void DecideWhatToDo() 
+	{
 	    // If able to attack, attack the closest unit
 	    if ( CanAttack() ) {
 		    List< WorldObject > enemyObjects = new List< WorldObject >();
@@ -556,7 +554,7 @@ public class WorldObject : Photon.MonoBehaviour {
 		        // If the player is not the same and the team neither, then the object is an enemy
 		        if (nearbyObject.GetPlayer() != player && nearbyObject.GetTeam() != GetTeam() ) enemyObjects.Add(nearbyObject);
 		    }
-		    WorldObject closestObject = WorkManager.FindNearestWorldObjectInListToPosition(enemyObjects, currentPosition);
+		    WorldObject closestObject = WorkManager.FindNearestWorldObjectInListToPosition(enemyObjects, transform.position);
 		    if (closestObject) BeginAttack(closestObject);
 		}
 	}

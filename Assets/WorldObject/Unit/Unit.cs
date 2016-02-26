@@ -89,8 +89,10 @@ public class Unit : WorldObject {
             CalculateBounds();
         }
 
-        // Avoid the stacking of units. This method is currently HIGHLY inefficient, as it is in O(n^2), n being the number of units.
-        // TODO at one point, implement a proper flocking algorithm.
+        // Update the list of nearby objects // TODO to refactor and try to find the nearby object of the nearby object !
+        nearbyObjects = WorkManager.FindNearbyObjects(transform.position, detectionRange);
+
+        // Avoid the stacking of units.
         CalculateFlocking();
 	}
 
@@ -382,35 +384,32 @@ public class Unit : WorldObject {
     }
 
 
-    // TODO CURRENTLY HIGHLY (!) INEFFICIENT
-    // This method checks that the unit is not moving too close to another unit. If this is the case, the position is slighty changed.
-    // TODO use the NearbyObject list !!!
+    // TODO REFACTOR WITH A REAL FLOCKING ALGORITHM
     private void CalculateFlocking()
     {
         Vector3 ret = Vector3.zero;
 
-        // Loop on every unit, and check that no unit is too close from that one
-        foreach ( Player player in ResourceManager.GetPlayers() ) {
-            foreach ( Unit unit in player.GetUnitList() ) {
+        foreach ( WorldObject nearbyObject in nearbyObjects ) {
 
-                if ( this != unit ) {
-                    Vector3 delta = this.transform.position - unit.transform.position;
-                    float dist = delta.magnitude;
+            Unit unit = nearbyObject as Unit;
 
-                    // minimal distance required between the 2 objects
-                    float mindist = 2; // TODO to replace with the bounds computation ... this.transform.Radius + unit.transform.Radius; 
-
-                    // If too close, move the unit a bit on the delta direction 
-                    if ( dist < mindist ) {
-                        //if ( dist < 0.1 ) delta = new Vector3(Random.Range(-0.5f, 0.5f), 0, Random.Range(-0.5f, 0.5f));
-                        float weight = mindist - dist;
-                        if ( weight < 0 ) weight = 0;
-                        ret += delta.normalized * weight;
-                    }
+            if ( unit != null && this != unit ) {
+                Vector3 delta = this.transform.position - unit.transform.position;
+                float dist = delta.magnitude;
+                // minimal distance required between the 2 objects
+                float mindist = 2; // TODO to replace with the bounds computation ... this.transform.Radius + unit.transform.Radius; 
+                
+                // If too close, move the unit a bit on the delta direction 
+                if ( dist < mindist ) {
+                    //if ( dist < 0.1 ) delta = new Vector3(Random.Range(-0.5f, 0.5f), 0, Random.Range(-0.5f, 0.5f));
+                    float weight = mindist - dist;
+                    if ( weight < 0 ) weight = 0;
+                    ret += delta.normalized * weight;
                 }
-
             }
+
         }
+
         this.transform.position = new Vector3(this.transform.position.x + ret.x, this.transform.position.y, this.transform.position.z + ret.z) ;
     }
 
