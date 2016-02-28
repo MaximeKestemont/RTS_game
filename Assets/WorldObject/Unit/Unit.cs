@@ -101,89 +101,9 @@ public class Unit : WorldObject {
 	}
 
 
-    // Display the tooltip for buildings that the unit can create
-    public override void DisplayActionTooltip(string tooltipName) {
-        base.DisplayActionTooltip(tooltipName);
-
-        GameObject obj = ResourceManager.GetBuilding(tooltipName);
-
-        if ( obj && obj.GetComponent<Building>() ) {
-            Building building = obj.GetComponent<Building>();
-            GUI.skin = null;
-
-            GUI.BeginGroup(new Rect(
-                Screen.width - ResourceManager.ORDERS_BAR_WIDTH - ResourceManager.TOOLTIP_WIDTH + ResourceManager.MARGIN, 
-                ResourceManager.RESOURCE_BAR_HEIGHT + ResourceManager.MARGIN, 
-                ResourceManager.TOOLTIP_WIDTH, 
-                ResourceManager.TOOLTIP_HEIGHT));
-            GUI.Box(new Rect(0, 0, Screen.width, Screen.height), ""); // put the texture here instead of ""
-
-            float x_offset = 0;
-            float y_offset = 0;
-
-            // Display the name of the object
-            GUI.Label (new Rect( 
-                ResourceManager.MARGIN, 
-                y_offset += ResourceManager.MARGIN, 
-                Screen.width, 
-                Screen.height), 
-                "" + building.objectName);
-
-            // Display the gold cost (below the object name)
-            if ( building.costValue.Length > 0 ) {
-                GUI.Label (new Rect(
-                    ResourceManager.MARGIN * 2, 
-                    y_offset += ResourceManager.TEXT_HEIGHT, 
-                    Screen.width, 
-                    Screen.height), 
-                    "" + building.costValue[0]);
-            }
-                
-            // Display the gold icon (right of the cost)
-            GUI.DrawTexture(new Rect(
-                ResourceManager.MARGIN * 2 + 30, 
-                y_offset, 
-                ResourceManager.RESOURCE_IMAGE_WIDTH / 3, 
-                ResourceManager.RESOURCE_IMAGE_HEIGHT / 3), 
-                ResourceManager.GoldImage);
-
-
-            // Display the requirements
-            bool firstRequirement = true;       // to only draw the label once
-
-            foreach (string requirement in building.GetBuildingNameRequirements()) {
-                if ( firstRequirement ) {
-                    GUI.Label (new Rect( 
-                        x_offset += ResourceManager.MARGIN, 
-                        y_offset += ResourceManager.RESOURCE_IMAGE_WIDTH / 3, 
-                        Screen.width, 
-                        Screen.height), 
-                        "Needs : ");
-                    firstRequirement = false;
-                }
-
-                // Draw the image of the requirement
-                Texture2D requirementImage = ResourceManager.GetBuilding(requirement).GetComponent<Building>().GetBuildImage();
-                GUI.DrawTexture(new Rect(
-                    x_offset, 
-                    ResourceManager.MARGIN + ResourceManager.TEXT_HEIGHT + 35, 
-                    ResourceManager.RESOURCE_IMAGE_WIDTH / 1.5f, 
-                    ResourceManager.RESOURCE_IMAGE_HEIGHT / 1.5f), 
-                    requirementImage);
-
-                // Update the x offset 
-                x_offset += ResourceManager.RESOURCE_IMAGE_WIDTH / 1.5f;
-            }
-
-            GUI.EndGroup();
-        }    
-    }
-
-
-
     // Call back method from the seeker, taking the path as argument.
     public void OnPathComplete (Path p) {
-        Debug.Log ("Got a path back. Did it have an error? " + p.error);
+        //Debug.Log ("Object " + objectId + " Path Computed. | Did it have an error? " + p.error);
         if ( !p.error ) {
             path = p;
             
@@ -266,6 +186,7 @@ public class Unit : WorldObject {
         destinationTarget = null;
     	rotating = true;
     	moving = false;
+        path = null;            // Important : delete the old path, so that it can generate a new one without interference
 
         // Start a new path to the targetPosition, return the result to the OnPathComplete function
         seeker.StartPath (transform.position, this.destination, OnPathComplete);
@@ -292,8 +213,9 @@ public class Unit : WorldObject {
         }
 	}
 
-	private void MakeMove() {
-        
+	private void MakeMove() 
+    {
+        //Debug.Log ("Object " + objectId + "| Make move");
         if (path == null) {
             //We have no path to move after yet
             return;
@@ -302,7 +224,7 @@ public class Unit : WorldObject {
         // TODO currently, it is stopping a bit before the last point because of the "NextWayPoint Distance". Need to adjust the target, or to 
         // have special logic for the last point.
         if (currentWaypoint >= path.vectorPath.Count) {
-            Debug.Log ("End Of Path Reached");
+            Debug.Log ("Object " + objectId + "| End Of Path Reached");
             moving = false;
             movingIntoPosition = false;
             return;
@@ -318,10 +240,7 @@ public class Unit : WorldObject {
 
             // Rotate towards the new waypoint
             if (currentWaypoint < path.vectorPath.Count) {
-            targetRotation = Quaternion.LookRotation (path.vectorPath[currentWaypoint] - transform.position);
-
-            // TODO better without locking, but bug with the bridge...
-            //targetRotation = Quaternion.Euler(0, targetRotation.eulerAngles.y, 0);      // Lock the rotation for the x and z axis
+                targetRotation = Quaternion.LookRotation (path.vectorPath[currentWaypoint] - transform.position);
 
                 // Adjust the rotation if too small of a change, but do not stop the movement.
                 if (Quaternion.Angle(targetRotation,transform.rotation) > 15 ) {
@@ -332,16 +251,6 @@ public class Unit : WorldObject {
             return;
         }
 
-
-        //    	transform.position = Vector3.MoveTowards(transform.position, destination, Time.deltaTime * moveSpeed);
-        /*
-        // TODO hack so that even if y differs, it still stop the moving mode. The problem is that the quaternion resulting from the rotate method is not 
-        // considering y, but that if it is, then it would "fly" towards the target. Need to recalculate it regularly.
-    	if ( ( transform.position.x <= (destination.x + precision) && transform.position.x >= (destination.x - precision) ) 
-            && ( transform.position.z <= destination.z + precision) && transform.position.z >= (destination.z - precision)  ) { 
-    		moving = false;
-            movingIntoPosition = false;
-        }*/
     	CalculateBounds();
 	}
 
@@ -415,6 +324,83 @@ public class Unit : WorldObject {
 
 
 
+    // Display the tooltip for buildings that the unit can create
+    public override void DisplayActionTooltip(string tooltipName) {
+        base.DisplayActionTooltip(tooltipName);
+
+        GameObject obj = ResourceManager.GetBuilding(tooltipName);
+
+        if ( obj && obj.GetComponent<Building>() ) {
+            Building building = obj.GetComponent<Building>();
+            GUI.skin = null;
+
+            GUI.BeginGroup(new Rect(
+                Screen.width - ResourceManager.ORDERS_BAR_WIDTH - ResourceManager.TOOLTIP_WIDTH + ResourceManager.MARGIN, 
+                ResourceManager.RESOURCE_BAR_HEIGHT + ResourceManager.MARGIN, 
+                ResourceManager.TOOLTIP_WIDTH, 
+                ResourceManager.TOOLTIP_HEIGHT));
+            GUI.Box(new Rect(0, 0, Screen.width, Screen.height), ""); // put the texture here instead of ""
+
+            float x_offset = 0;
+            float y_offset = 0;
+
+            // Display the name of the object
+            GUI.Label (new Rect( 
+                ResourceManager.MARGIN, 
+                y_offset += ResourceManager.MARGIN, 
+                Screen.width, 
+                Screen.height), 
+                "" + building.objectName);
+
+            // Display the gold cost (below the object name)
+            if ( building.costValue.Length > 0 ) {
+                GUI.Label (new Rect(
+                    ResourceManager.MARGIN * 2, 
+                    y_offset += ResourceManager.TEXT_HEIGHT, 
+                    Screen.width, 
+                    Screen.height), 
+                    "" + building.costValue[0]);
+            }
+                
+            // Display the gold icon (right of the cost)
+            GUI.DrawTexture(new Rect(
+                ResourceManager.MARGIN * 2 + 30, 
+                y_offset, 
+                ResourceManager.RESOURCE_IMAGE_WIDTH / 3, 
+                ResourceManager.RESOURCE_IMAGE_HEIGHT / 3), 
+                ResourceManager.GoldImage);
+
+
+            // Display the requirements
+            bool firstRequirement = true;       // to only draw the label once
+
+            foreach (string requirement in building.GetBuildingNameRequirements()) {
+                if ( firstRequirement ) {
+                    GUI.Label (new Rect( 
+                        x_offset += ResourceManager.MARGIN, 
+                        y_offset += ResourceManager.RESOURCE_IMAGE_WIDTH / 3, 
+                        Screen.width, 
+                        Screen.height), 
+                        "Needs : ");
+                    firstRequirement = false;
+                }
+
+                // Draw the image of the requirement
+                Texture2D requirementImage = ResourceManager.GetBuilding(requirement).GetComponent<Building>().GetBuildImage();
+                GUI.DrawTexture(new Rect(
+                    x_offset, 
+                    ResourceManager.MARGIN + ResourceManager.TEXT_HEIGHT + 35, 
+                    ResourceManager.RESOURCE_IMAGE_WIDTH / 1.5f, 
+                    ResourceManager.RESOURCE_IMAGE_HEIGHT / 1.5f), 
+                    requirementImage);
+
+                // Update the x offset 
+                x_offset += ResourceManager.RESOURCE_IMAGE_WIDTH / 1.5f;
+            }
+
+            GUI.EndGroup();
+        }    
+    }
 
 
 
