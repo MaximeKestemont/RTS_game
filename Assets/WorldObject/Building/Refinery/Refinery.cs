@@ -16,17 +16,7 @@ public class Refinery : Building {
     protected override bool ShouldMakeDecision () {
         return false;
     }
- 
 
-    // TODO remove Refinery here, only for the sake of testing the display
-    public override List<Type> GetBuildingRequirements() {
-        return new List<Type>() { typeof(WarFactory), typeof(Refinery) };
-    }
-
-    // TODO remove Refinery here, only for the sake of testing the display
-    public override List<string> GetBuildingNameRequirements() {
-        return new List<string>() { "WarFactory", "Refinery" };
-    }
 
     public override void PerformAction(string actionToPerform) {
         base.PerformAction(actionToPerform);

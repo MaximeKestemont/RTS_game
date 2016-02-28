@@ -211,7 +211,7 @@ public class Building : WorldObject {
                 Texture2D requirementImage = ResourceManager.GetBuilding(requirement).GetComponent<Building>().GetBuildImage();
                 GUI.DrawTexture(new Rect(
                     x_offset, 
-                    ResourceManager.MARGIN + ResourceManager.TEXT_HEIGHT + 30, 
+                    ResourceManager.MARGIN + ResourceManager.TEXT_HEIGHT + 35, 
                     ResourceManager.RESOURCE_IMAGE_WIDTH / 1.5f, 
                     ResourceManager.RESOURCE_IMAGE_HEIGHT / 1.5f), 
                     requirementImage);

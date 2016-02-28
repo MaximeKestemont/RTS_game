@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
+using System;
 using System.Collections;
+using System.Collections.Generic;
 using RTS;
  
 public class Turret : Building {
@@ -24,6 +26,14 @@ public class Turret : Building {
                 aiming = false;
             }
         }
+    }
+
+    public override List<string> GetBuildingNameRequirements() {
+        return new List<string>() { "WarFactory" };
+    }
+
+    public override List<Type> GetBuildingRequirements() {
+        return new List<Type>() { typeof(WarFactory) };
     }
      
     public override bool CanAttack() {
